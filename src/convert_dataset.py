@@ -6,6 +6,9 @@ def convert_dataset_to_yolo(dataset_path,output_image_path,output_label_path):
     print(f"Output image path: {output_image_path}")
     print(f"Output label path: {output_label_path}")
 
+    os.makedirs(output_image_path, exist_ok=True)
+    os.makedirs(output_label_path, exist_ok=True)
+
     for folder in os.listdir(dataset_path):
         folder_path = os.path.join(dataset_path, folder)
 
@@ -24,10 +27,10 @@ def convert_dataset_to_yolo(dataset_path,output_image_path,output_label_path):
             print("No CSV found in", folder)
             continue
 
-        convert_folder_to_yolo(csv_file,folder,output_image_path,output_label_path)
+        convert_folder_to_yolo(csv_file,folder_path,output_image_path,output_label_path)
 
 
-def convert_folder_to_yolo(csv_path,folder,output_image_path,output_label_path):
+def convert_folder_to_yolo(csv_path,folder_path,output_image_path,output_label_path):
     with open(csv_path, "r") as f:
         lines = f.readlines()[1:]
 
@@ -41,7 +44,7 @@ def convert_folder_to_yolo(csv_path,folder,output_image_path,output_label_path):
         class_id = int(class_id)
 
         # conversion image
-        img_path = os.path.join(folder, filename)
+        img_path = os.path.join(folder_path, filename)
         img = cv2.imread(img_path)
         jpg_name = filename.replace(".ppm", ".jpg")
         cv2.imwrite(os.path.join(output_image_path, jpg_name), img)
@@ -66,5 +69,5 @@ def convert_folder_to_yolo(csv_path,folder,output_image_path,output_label_path):
 
 
 if __name__ == "__main__":
-    convert_dataset_to_yolo("datasets/BelgiumTSC_Training/Training","datasets/BelgiumTSC_Training_YOLO/images","datasets/BelgiumTSC_Training_YOLO/labels")
-    convert_dataset_to_yolo("datasets/BelgiumTSC_Testing/Testing","datasets/BelgiumTSC_Testing_YOLO/images","datasets/BelgiumTSC_Testing_YOLO/labels")
+    convert_dataset_to_yolo("../datasets/BelgiumTSC_Training/Training","../datasets/BelgiumTSC_Training_YOLO/images","../datasets/BelgiumTSC_Training_YOLO/labels")
+    convert_dataset_to_yolo("../datasets/BelgiumTSC_Testing/Testing","../datasets/BelgiumTSC_Testing_YOLO/images","../datasets/BelgiumTSC_Testing_YOLO/labels")
