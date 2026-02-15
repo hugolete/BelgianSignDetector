@@ -1,9 +1,71 @@
 # Train/val/test sets as 1) dir: path/to/imgs, 2) file: path/to/imgs.txt, or 3) list: [path/to/imgs1, path/to/imgs2, ..]
 path: ../datasets/ # dataset root dir
-train: # train images (relative to 'path') 128 images
-val: # val images (relative to 'path') 128 images
+train: ../datasets/BelgiumTSC_Training_YOLO # train images (relative to 'path') 128 images
+val: ../datasets/BelgiumTSC_Testing_YOLO # val images (relative to 'path') 128 images
 test: # test images (optional)
 
 # Classes
+nc: 62
 names:
-  # TODO
+  0: Bumps1
+  1: Speedbump
+  2: Slippery
+  3: LeftTurn
+  4: RightTurn
+  5: HorizontalZigzag
+  6: VerticalZigzag
+  7: ChildrenCrossing
+  8: Bicycle
+  9: CowCrossing
+  10: Roadworks
+  11: RedLight
+  12: TrainBarrier
+  13: WarningSign
+  14: NarrowRoad
+  15: NarrowRoadLeft
+  16: NarrowRoadRight
+  17: RoadPriority
+  18: Crossing
+  19: Yield
+  20: AlternateDirectionYield
+  21: Stop
+  22: WrongWay
+  23: NoBicycle
+  24: 3tons5
+  25: NoTrucks
+  26: 2m10Wide
+  27: 3m70High
+  28: ProhibitSign
+  29: NoTurnLeft
+  30: NoTurnRight
+  31: NoOvertake
+  32: SpeedLimit70
+  33: PedestrianAndBikes
+  34: GoAhead
+  35: KeepRight
+  36: GoAheadOrRight
+  37: Roundabout
+  38: BicycleTrack
+  39: PedestrianAndBikesSeparated
+  40: NoParking
+  41: NoParkingOrStopping
+  42: NoParkingFrom1to15
+  43: NoParkingFrom16to31
+  44: AlternateDirectionGo
+  45: ParkingDisk
+  46: ParkingHandicapped
+  47: ParkingCar
+  48: ParkingTruck
+  49: ParkingBus
+  50: ParkingSidewalk
+  51: MeetingZone
+  52: EndMeetingZone
+  53: GoAheadSquare
+  54: DeadEnd
+  55: EndRoadworks
+  56: PedestrianCrossing
+  57: BicycleCrossing
+  58: ParkingRight
+  59: SpeedbumpBlue
+  60: EndPriorityZone
+  61: PriorityZone
