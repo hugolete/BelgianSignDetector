@@ -8,4 +8,7 @@ if __name__ == '__main__':
     learning_rate = float(input("Learning rate")) # 0.0025 si 4, 0.005 si 8
 
     trainer = YOLOTraining()
-    trainer.train("gpu",model_path,nb_epochs,640,"127.0.0.1:5000",exp_name,"dataset.yaml","models/",batch_size,learning_rate)
+
+    results_training = trainer.train("0",model_path,nb_epochs,640,"http://127.0.0.1:5000",exp_name,"dataset.yaml","../models/",batch_size,learning_rate)
+
+    print(results_training)
