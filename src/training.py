@@ -6,9 +6,10 @@ if __name__ == '__main__':
     exp_name = str(input("Nom expérience"))
     batch_size = int(input("Batch size")) # 4 ou 8
     learning_rate = float(input("Learning rate")) # 0.0025 si 4, 0.005 si 8
+    patience = int(input("Patience (nb d'epochs sans amélioration avant arrêt)"))
 
     trainer = YOLOTraining()
 
-    results_training = trainer.train("0",model_path,nb_epochs,640,"http://127.0.0.1:5000",exp_name,"dataset.yaml","../models/",batch_size,learning_rate)
+    results_training = trainer.train("0",model_path,nb_epochs,640,"http://127.0.0.1:5000",exp_name,"dataset.yaml","../models/",batch_size,learning_rate,patience)
 
     print(results_training)
