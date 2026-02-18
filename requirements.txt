@@ -1,0 +1,6 @@
+mlflow
+ultralytics
+torch~=2.7.1+cu118
+numpy
+opencv-python~=4.13.0.92
+ruamel.yaml
