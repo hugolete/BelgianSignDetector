@@ -2,4 +2,5 @@
 - Predictions
 - Interpreting predictions
 - Predictions on videos
+- Pipeline (training -> eval -> prediction automatically)
 - Dockerization
