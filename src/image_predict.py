@@ -1,4 +1,5 @@
 from factorymlops.demonstrators.YOLODemonstrator import YOLODemonstrator
+from ultralytics import YOLO
 
 
 def use_predictor(model_path:str, image_path:str):
@@ -21,7 +22,12 @@ if __name__ == '__main__':
         if choix == 1:
             use_predictor(model_path, image_path)
         elif choix == 2:
-            # TODO
-            pass
+            model = YOLO(model_path)
+
+            results = model.predict(source=image_path,imgsz=640,conf=0.01)
+            print(results)
+
+            #results[0].show()
+            # TODO terminer
         else:
             print("Choix invalide")
