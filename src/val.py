@@ -35,8 +35,8 @@ def val_multiple_models():
         "Augmentation_8epochs_best.pt",
         "Augmentation_10epochs_best.pt",
         "Augmentation_Epoch5.pt",
-        "Augmentation_Epoch6.pt"
-        "Augmentation_Epoch8.pt"
+        "Augmentation_Epoch6.pt",
+        "Augmentation_Epoch8.pt",
     ]
 
     for model in model_list:
