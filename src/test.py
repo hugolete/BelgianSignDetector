@@ -34,7 +34,8 @@ for model_name in model_list:
 
             img = results[0].plot()
 
-            save_path = os.path.join(output_folder, file)
+            os.makedirs(f"{output_folder}/{model_name}", exist_ok=True)
+            save_path = os.path.join(output_folder, model_name,file)
             cv2.imwrite(save_path, img)
 
             print("Done:", file)
