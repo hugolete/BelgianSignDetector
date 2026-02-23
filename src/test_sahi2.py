@@ -29,5 +29,5 @@ for file in os.listdir(image_folder_path):
             postprocess_match_threshold=0.5
         )
 
-        result.export_visuals(export_dir="outputs/")
+        result.export_visuals(export_dir="outputs/",file_name=file)
         print(result)
