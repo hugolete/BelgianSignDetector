@@ -3,10 +3,10 @@ import os
 import cv2
 
 
-image_folder_path = "../datasets/Dataset test/"
-output_folder = "predictions_test"
+img_sizes = [640, 800, 1024, 320]
+conf_levels = [0.2, 0.45]
 
-os.makedirs(output_folder, exist_ok=True)
+image_folder_path = "../datasets/Dataset test/"
 
 model_list = [
     "Augmentation_5epoch_best.pt",
@@ -18,47 +18,51 @@ model_list = [
     "FinalModel.pt"
 ]
 
-total_detected_signs = 0
+for imgsz in img_sizes:
+    for conf in conf_levels:
+        output_folder = f"predictions_test_{imgsz}_conf{str(conf).replace('.', '')}"
+        os.makedirs(output_folder, exist_ok=True)
 
-for model_name in model_list:
-    model_path = f"../models/{model_name}"
+        total_detected_signs = 0
 
-    model = YOLO(model_path)
-    model_detected_signs = 0
+        for model_name in model_list:
+            model_path = f"../models/{model_name}"
 
-    for file in os.listdir(image_folder_path):
-        detected_signs = 0
+            model = YOLO(model_path)
+            model_detected_signs = 0
 
-        if file.lower().endswith((".jpg", ".png", ".jpeg")):
-            print("Image : ", file)
-            path = os.path.join(image_folder_path, file)
+            for file in os.listdir(image_folder_path):
+                detected_signs = 0
 
-            results = model(path, conf=0.45, imgsz=640)
+                if file.lower().endswith((".jpg", ".png", ".jpeg")):
+                    print("Image : ", file)
+                    path = os.path.join(image_folder_path, file)
 
-            img = results[0].plot()
+                    results = model(path, conf=0.2, imgsz=1024)
 
-            os.makedirs(f"{output_folder}/{model_name}", exist_ok=True)
-            save_path = os.path.join(output_folder, model_name,file)
-            cv2.imwrite(save_path, img)
+                    img = results[0].plot()
 
-            print("Done:", file)
-            print(file, "detections:", len(results[0].boxes))
-            detected_signs += len(results[0].boxes)
-            model_detected_signs += detected_signs
+                    os.makedirs(f"{output_folder}/{model_name}", exist_ok=True)
+                    save_path = os.path.join(output_folder, model_name,file)
+                    cv2.imwrite(save_path, img)
 
-        print("Detected signs : ",detected_signs)
+                    print("Done:", file)
+                    print(file, "detections:", len(results[0].boxes))
+                    detected_signs += len(results[0].boxes)
+                    model_detected_signs += detected_signs
 
-        with open(f'{output_folder}/{model_name}.txt', 'a') as f:
-            f.write(f"Detected signs : {detected_signs}\n")
+                print("Detected signs : ",detected_signs)
 
-    print("Model detected signs : ",model_detected_signs)
-    total_detected_signs += model_detected_signs
+                with open(f'{output_folder}/{model_name}.txt', 'a') as f:
+                    f.write(f"Detected signs : {detected_signs}\n")
 
-    with open(f'{output_folder}/{model_name}.txt', 'a') as f:
-        f.write(f"Detected signs : {model_detected_signs}\n")
+            print("Model detected signs : ",model_detected_signs)
+            total_detected_signs += model_detected_signs
 
-print("Total detected signs : ",total_detected_signs)
+            with open(f'{output_folder}/{model_name}.txt', 'a') as f:
+                f.write(f"Model detected signs : {model_detected_signs}\n")
 
-with open(f'{output_folder}/test.txt', 'a') as f:
-    f.write(f"Detected signs : {total_detected_signs}\n")
-    
+        print("Total detected signs : ",total_detected_signs)
+
+        with open(f'{output_folder}/detected_signs.txt', 'a') as f:
+            f.write(f"Total detected signs : {total_detected_signs}\n")
