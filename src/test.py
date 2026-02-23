@@ -38,7 +38,7 @@ for imgsz in img_sizes:
                     print("Image : ", file)
                     path = os.path.join(image_folder_path, file)
 
-                    results = model(path, conf=0.2, imgsz=1024)
+                    results = model(path, conf=conf, imgsz=imgsz)
 
                     img = results[0].plot()
 
@@ -51,16 +51,16 @@ for imgsz in img_sizes:
                     detected_signs += len(results[0].boxes)
                     model_detected_signs += detected_signs
 
-                print("Detected signs : ",detected_signs)
+                print(f"{file} Detected signs : ",detected_signs)
 
                 with open(f'{output_folder}/{model_name}.txt', 'a') as f:
-                    f.write(f"Detected signs : {detected_signs}\n")
+                    f.write(f"{file} Detected signs : {detected_signs}\n")
 
-            print("Model detected signs : ",model_detected_signs)
+            print(f"Model {model_name} detected signs : ",model_detected_signs)
             total_detected_signs += model_detected_signs
 
             with open(f'{output_folder}/{model_name}.txt', 'a') as f:
-                f.write(f"Model detected signs : {model_detected_signs}\n")
+                f.write(f"Model {model_name} detected signs : {model_detected_signs}\n")
 
         print("Total detected signs : ",total_detected_signs)
 
