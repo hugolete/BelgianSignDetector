@@ -13,7 +13,7 @@ model_list = [
     "Augmentation_8epochs_best.pt",
     "Augmentation_10epochs_best.pt",
     "Augmentation_Epoch5.pt",
-    "Augmentation_Epoch6.pt"
+    "Augmentation_Epoch6.pt",
     "Augmentation_Epoch8.pt",
     "FinalModel.pt"
 ]
@@ -22,6 +22,7 @@ for model_name in model_list:
     model_path = f"../models/{model_name}"
 
     model = YOLO(model_path)
+    model_detected_signs = 0
 
     for file in os.listdir(image_folder_path):
         detected_signs = 0
@@ -30,7 +31,7 @@ for model_name in model_list:
             print("Image : ", file)
             path = os.path.join(image_folder_path, file)
 
-            results = model(path, conf=0.1, imgsz=640)
+            results = model(path, conf=0.45, imgsz=640)
 
             img = results[0].plot()
 
@@ -41,8 +42,14 @@ for model_name in model_list:
             print("Done:", file)
             print(file, "detections:", len(results[0].boxes))
             detected_signs += len(results[0].boxes)
+            model_detected_signs += detected_signs
 
         print("Detected signs : ",detected_signs)
 
         with open(f'{output_folder}/{model_name}.txt', 'a') as f:
             f.write(f"Detected signs : {detected_signs}\n")
+
+    print("Model detected signs : ",model_detected_signs)
+
+    with open(f'{output_folder}/{model_name}.txt', 'a') as f:
+        f.write(f"Detected signs : {model_detected_signs}\n")
