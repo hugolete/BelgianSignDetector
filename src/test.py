@@ -18,6 +18,8 @@ model_list = [
     "FinalModel.pt"
 ]
 
+total_detected_signs = 0
+
 for model_name in model_list:
     model_path = f"../models/{model_name}"
 
@@ -50,6 +52,13 @@ for model_name in model_list:
             f.write(f"Detected signs : {detected_signs}\n")
 
     print("Model detected signs : ",model_detected_signs)
+    total_detected_signs += model_detected_signs
 
     with open(f'{output_folder}/{model_name}.txt', 'a') as f:
         f.write(f"Detected signs : {model_detected_signs}\n")
+
+print("Total detected signs : ",total_detected_signs)
+
+with open(f'{output_folder}/test.txt', 'a') as f:
+    f.write(f"Detected signs : {total_detected_signs}\n")
+    
