@@ -13,10 +13,13 @@ detection_model = detector.from_pretrained(
 
 image_folder_path = "../datasets/Dataset test/"
 
+total_detections = 0
+
 for file in os.listdir(image_folder_path):
     if file.lower().endswith((".jpg", ".png", ".jpeg")):
         print("Image : ", file)
         path = os.path.join(image_folder_path, file)
+        detections = 0
 
         result = get_sliced_prediction(
             path,
@@ -30,4 +33,15 @@ for file in os.listdir(image_folder_path):
         )
 
         result.export_visuals(export_dir="outputs/",file_name=file)
-        print(result)
+        #print(result.object_prediction_list)
+
+        detections_on_image = len(result.object_prediction_list)
+        detections += detections_on_image
+        total_detections += detections_on_image
+
+        for prediction in result.object_prediction_list:
+            print(prediction.category.name)
+
+        print("Total détecté : ",detections)
+
+print("Total détecté sur toutes les images : ",total_detections)
