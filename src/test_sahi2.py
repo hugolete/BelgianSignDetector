@@ -6,7 +6,7 @@ detector = AutoDetectionModel()
 
 detection_model = detector.from_pretrained(
     model_type='ultralytics',
-    model_path='../models/FinalModel.pt',
+    model_path='../models/Augmentation_Epoch6.pt',
     confidence_threshold=0.3,
     device="cuda:0"
 )
@@ -24,12 +24,13 @@ for file in os.listdir(image_folder_path):
         result = get_sliced_prediction(
             path,
             detection_model,
-            slice_height=320,
-            slice_width=320,
+            slice_height=640,
+            slice_width=640,
             overlap_height_ratio=0.3,
             overlap_width_ratio=0.3,
             postprocess_type="NMS",
-            postprocess_match_threshold=0.5
+            postprocess_match_threshold=0.5,
+            perform_standard_pred=True
         )
 
         result.export_visuals(export_dir="outputs/",file_name=file)
