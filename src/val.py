@@ -48,13 +48,13 @@ def val_multiple_models():
 
 
 if __name__ == "__main__":
-    """dataset_yaml_path = "dataset.yaml"
+    dataset_yaml_path = str(input("Chemin du dataset"))
     model_path = str(input("Chemin du modèle"))
     output_path = "../eval_results"
     model_name = str(input("Nom du modèle"))
 
     output_yaml_path = model_val(dataset_yaml_path, model_path, output_path,model_name)
 
-    print("Résultat de l'eval sauvegardé dans : ", output_yaml_path)"""
+    print("Résultat de l'eval sauvegardé dans : ", output_yaml_path)
 
-    val_multiple_models()
+    #val_multiple_models()
