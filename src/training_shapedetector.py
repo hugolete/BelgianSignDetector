@@ -17,7 +17,7 @@ if __name__ == '__main__':
         640,
         "http://127.0.0.1:5000",
         exp_name,
-        "dataset_formes.yaml",
+        "shape_dataset.yaml",
         "../models/",
         batch_size,
         learning_rate,
