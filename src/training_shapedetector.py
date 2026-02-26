@@ -17,12 +17,11 @@ if __name__ == '__main__':
         640,
         "http://127.0.0.1:5000",
         exp_name,
-        "shape_dataset.yaml",
+        "ShapeDetector_kaggle.yaml",
         "../models/",
         batch_size,
         learning_rate,
-        patience,
-        scale=0.1
+        patience
     )
 
     print(results_training)
