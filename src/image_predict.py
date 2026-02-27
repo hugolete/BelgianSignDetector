@@ -39,9 +39,9 @@ def shape_detection(shapeDetector_path:str,img):
 
         print(f"Nombre de panneaux uniques trouvés : {len(final_boxes)}")
     else:
-        """print("Pas de détection sur cette image")
-        return []"""
-        raise ValueError("Pas de détection sur cette image")
+        print("Pas de détection sur cette image")
+        return []
+        # raise ValueError("Pas de détection sur cette image")
 
     for detection in final_boxes:
         x1, y1, x2, y2, conf, cls = detection.tolist()
@@ -82,7 +82,7 @@ def get_crops(img,final_boxes,padding=10):
         })
 
         # sauvegarde pour vérifier les crops
-        cv2.imwrite(f"debug_crop_{i}.jpg", crop_img)
+        #cv2.imwrite(f"debug_crop_{i}.jpg", crop_img)
 
     return crops_list
 
