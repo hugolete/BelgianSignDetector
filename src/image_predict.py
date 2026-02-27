@@ -105,6 +105,16 @@ def sign_detection(signDetector_path,cropped_signs):
     return cropped_signs
 
 
+def get_detected_signs(final_signs):
+    detected_signs = {}
+
+    for sign in final_signs:
+        label = sign.get('final_class')
+        detected_signs[label] = detected_signs.get(label, 0) + 1
+
+    return detected_signs
+
+
 if __name__ == '__main__':
     shapeDetector_path = "../models/ShapeDetector_Kaggle_Epoch20.pt"
     signDetector_path = "../models/FinalModel.pt"
@@ -118,15 +128,16 @@ if __name__ == '__main__':
 
     final_boxes = shape_detection(shapeDetector_path, img)
     cropped_signs = get_crops(img,final_boxes)
-    #print(cropped_signs)
     final_signs = sign_detection(signDetector_path,cropped_signs)
+    detected_signs = get_detected_signs(final_signs)
 
+    for sign in detected_signs:
+        print(f"Panneau détecté : {sign} | {detected_signs[sign]} détections")
 
     if question_dessin == 0:
         pass
     elif question_dessin == 1:
         pass
 
-    # TODO : print chaque détection finale & stocker en variable
     # TODO : dessin des détections sur l'image de base
     # TODO facultatif : faire le lien entre l'image cropée et le type de panneau détecté dessus, pour fournir la détection exacte (position et type) sur l'image de base
