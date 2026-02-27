@@ -6,7 +6,7 @@ import cv2
 img_sizes = [640, 800, 1024, 320]
 conf_levels = [0.2, 0.45]
 
-image_folder_path = "../datasets/Dataset test/"
+image_folder_path = "../../datasets/Dataset test/"
 
 model_list = [
     "Augmentation_5epoch_best.pt",

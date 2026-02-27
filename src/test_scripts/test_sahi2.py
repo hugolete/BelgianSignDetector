@@ -6,12 +6,12 @@ detector = AutoDetectionModel()
 
 detection_model = detector.from_pretrained(
     model_type='ultralytics',
-    model_path='../models/Augmentation_Epoch6.pt',
+    model_path='../../models/Augmentation_Epoch6.pt',
     confidence_threshold=0.3,
     device="cuda:0"
 )
 
-image_folder_path = "../datasets/Dataset test/"
+image_folder_path = "../../datasets/Dataset test/"
 
 total_detections = 0
 
@@ -33,7 +33,7 @@ for file in os.listdir(image_folder_path):
             perform_standard_pred=True
         )
 
-        result.export_visuals(export_dir="outputs/",file_name=file)
+        result.export_visuals(export_dir="../outputs/", file_name=file)
         #print(result.object_prediction_list)
 
         detections_on_image = len(result.object_prediction_list)
