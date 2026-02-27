@@ -1,3 +1,4 @@
+from sympy.codegen.ast import continue_
 from ultralytics import YOLO
 import torch
 import cv2
@@ -86,17 +87,46 @@ def get_crops(img,final_boxes,padding=10):
     return crops_list
 
 
+def sign_detection(signDetector_path,cropped_signs):
+    print("Début détection panneau")
+    signDetector = YOLO(signDetector_path)
+
+    for sign in cropped_signs:
+        results = signDetector.predict(sign['image'])
+
+        if len(results[0].boxes) > 0:
+            top_box = results[0].boxes[0]
+            sign['final_class'] = signDetector.names[int(top_box.cls)]
+            sign['final_conf'] = float(top_box.conf)
+        else:
+            sign['final_class'] = "Inconnu/Rejeté"
+            sign['final_conf'] = 0.0
+
+    return cropped_signs
+
+
 if __name__ == '__main__':
     shapeDetector_path = "../models/ShapeDetector_Kaggle_Epoch20.pt"
-    model_path = "../models/FinalModel.pt"
+    signDetector_path = "../models/FinalModel.pt"
 
     image_path = str(input("Chemin de l'image"))
     img = cv2.imread(image_path)
 
+    question_dessin = int(input("Dessin final? (0 pour oui, 1 pour non)"))
+    if question_dessin != 0 and question_dessin != 1:
+        raise ValueError("Nombre invalide")
+
     final_boxes = shape_detection(shapeDetector_path, img)
     cropped_signs = get_crops(img,final_boxes)
+    #print(cropped_signs)
+    final_signs = sign_detection(signDetector_path,cropped_signs)
 
-    # TODO : crop image de base selon les coordonnées des panneaux détectés. Objectif : obtenir 1 image par panneau, qui ne contient que le panneau
-    # TODO : run inférence sur chaque image cropée avec FinalModel pour déterminer le type du panneau lui-même
-    # TODO : print chaque détection finale
+
+    if question_dessin == 0:
+        pass
+    elif question_dessin == 1:
+        pass
+
+    # TODO : print chaque détection finale & stocker en variable
+    # TODO : dessin des détections sur l'image de base
     # TODO facultatif : faire le lien entre l'image cropée et le type de panneau détecté dessus, pour fournir la détection exacte (position et type) sur l'image de base
