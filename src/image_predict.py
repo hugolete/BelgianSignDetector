@@ -5,8 +5,7 @@ from ultralytics.utils.ops import scale_boxes
 from torchvision.ops import nms
 
 
-def shape_detection(shapeDetector_path:str,image_path:str):
-    img = cv2.imread(image_path)
+def shape_detection(shapeDetector_path:str,img):
     h0,w0 = img.shape[:2] # récup de la taille réelle
     shapeDetector = YOLO(shapeDetector_path)
 
@@ -15,7 +14,7 @@ def shape_detection(shapeDetector_path:str,image_path:str):
 
     # inférences
     for size in imgszs:
-        results = shapeDetector.predict(image_path, imgsz=size, conf=0.25)
+        results = shapeDetector.predict(img, imgsz=size, conf=0.25)
 
         boxes = results[0].boxes
         if len(boxes)>0:
@@ -39,19 +38,52 @@ def shape_detection(shapeDetector_path:str,image_path:str):
 
         print(f"Nombre de panneaux uniques trouvés : {len(final_boxes)}")
     else:
-        print("Pas de détection sur cette image")
-        return []
+        """print("Pas de détection sur cette image")
+        return []"""
+        raise ValueError("Pas de détection sur cette image")
 
     for detection in final_boxes:
         x1, y1, x2, y2, conf, cls = detection.tolist()
         label = shapeDetector.names[int(cls)]
         print(f"- Panneau {label} détecté avec confiance {conf:.2f} aux coords [{int(x1)}, {int(y1)}, {int(x2)}, {int(y2)}]")
 
-        # dessin sur image (vérif)
-        cv2.rectangle(img, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 2)
+        # dessin sur image (vérif, facultatif)
+        #cv2.rectangle(img, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 2)
 
-    cv2.imshow("Detection Finale Fusionnee", img)
-    cv2.waitKey(0)
+    #cv2.imshow("Detection Finale Fusionnee", img)
+    #cv2.waitKey(0)
+
+    return final_boxes
+
+
+def get_crops(img,final_boxes,padding=10):
+    print("Début crop")
+    h0, w0 = img.shape[:2]  # récup de la taille réelle
+    crops_list = []
+
+    for i,detection in enumerate(final_boxes):
+        x1, y1, x2, y2, conf, cls = detection.tolist()
+
+        # application du padding pour ne pas risquer un bug
+        ix1 = max(0, int(x1) - padding)
+        iy1 = max(0, int(y1) - padding)
+        ix2 = min(w0, int(x2) + padding)
+        iy2 = min(h0, int(y2) + padding)
+
+        # découpage Numpy
+        crop_img = img[iy1:iy2, ix1:ix2]
+
+        crops_list.append({
+            "crop_id": i,
+            "image": crop_img,
+            "coords_orig": [int(x1), int(y1), int(x2), int(y2)],  # Utile pour le dessin final
+            "shape_conf": conf
+        })
+
+        # sauvegarde pour vérifier les crops
+        cv2.imwrite(f"debug_crop_{i}.jpg", crop_img)
+
+    return crops_list
 
 
 if __name__ == '__main__':
@@ -59,9 +91,12 @@ if __name__ == '__main__':
     model_path = "../models/FinalModel.pt"
 
     image_path = str(input("Chemin de l'image"))
+    img = cv2.imread(image_path)
 
-    shape_detection(shapeDetector_path, image_path)
+    final_boxes = shape_detection(shapeDetector_path, img)
+    cropped_signs = get_crops(img,final_boxes)
+
     # TODO : crop image de base selon les coordonnées des panneaux détectés. Objectif : obtenir 1 image par panneau, qui ne contient que le panneau
     # TODO : run inférence sur chaque image cropée avec FinalModel pour déterminer le type du panneau lui-même
     # TODO : print chaque détection finale
-    # TODO : faire le lien entre l'image cropée et le type de panneau détecté dessus, pour fournir la détection exacte (position et type) sur l'image de base
+    # TODO facultatif : faire le lien entre l'image cropée et le type de panneau détecté dessus, pour fournir la détection exacte (position et type) sur l'image de base
