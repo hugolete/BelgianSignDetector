@@ -2,6 +2,7 @@ from factorymlops.trainers.YOLOTraining import YOLOTraining
 
 if __name__ == '__main__':
     model_path = str(input("Chemin du modèle"))
+    dataset_path = str(input("Chemin du YAML du dataset"))
     nb_epochs = int(input("Nombre d'epochs"))
     exp_name = str(input("Nom expérience"))
     batch_size = int(input("Batch size")) # 4 ou 8
@@ -29,7 +30,7 @@ if __name__ == '__main__':
         640,
         "http://127.0.0.1:5000",
         exp_name,
-        "dataset.yaml",
+        dataset_path,
         "../models/",
         batch_size,
         learning_rate,
