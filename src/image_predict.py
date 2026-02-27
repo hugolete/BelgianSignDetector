@@ -39,7 +39,8 @@ def shape_detection(shapeDetector_path:str,image_path:str):
 
         print(f"Nombre de panneaux uniques trouvés : {len(final_boxes)}")
     else:
-        raise ValueError("Pas de détection sur cette image")
+        print("Pas de détection sur cette image")
+        return []
 
     for detection in final_boxes:
         x1, y1, x2, y2, conf, cls = detection.tolist()
