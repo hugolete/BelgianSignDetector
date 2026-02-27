@@ -1,5 +1,6 @@
 import os
 
+# Convertir le dataset originel déja converti en YOLO en mode "formes" pour shape detection
 
 mapping = {
     # TRIANGLES (Classe 0)

@@ -1,6 +1,8 @@
 import os
 import cv2
 
+# Convertir dataset originel (https://btsd.ethz.ch/shareddata/) en format YOLO (img/txt)
+
 def convert_dataset_to_yolo(dataset_path,output_image_path,output_label_path):
     print(f"Converting dataset {dataset_path} to YOLO format")
     print(f"Output image path: {output_image_path}")
@@ -69,5 +71,5 @@ def convert_folder_to_yolo(csv_path,folder_path,output_image_path,output_label_p
 
 
 if __name__ == "__main__":
-    convert_dataset_to_yolo("../datasets/BelgiumTSC_Training/Training","../datasets/BelgiumTSC_Training_YOLO/images","../datasets/BelgiumTSC_Training_YOLO/labels")
-    convert_dataset_to_yolo("../datasets/BelgiumTSC_Testing/Testing","../datasets/BelgiumTSC_Testing_YOLO/images","../datasets/BelgiumTSC_Testing_YOLO/labels")
+    convert_dataset_to_yolo("../datasets/BelgiumTSC_Training/Training", "../datasets/BelgiumTSC_Training_YOLO/images", "../datasets/BelgiumTSC_Training_YOLO/labels")
+    convert_dataset_to_yolo("../datasets/BelgiumTSC_Testing/Testing", "../datasets/BelgiumTSC_Testing_YOLO/images", "../datasets/BelgiumTSC_Testing_YOLO/labels")
