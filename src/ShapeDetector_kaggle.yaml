@@ -1,0 +1,12 @@
+path: ../datasets/ # dataset root dir
+train: ../datasets/ShapeDetector_Kaggle/images/train # train images
+val: ../datasets/ShapeDetector_Kaggle/images/val # val images
+test: # test images (optional)
+
+# Classes
+nc: 4
+names:
+  0: prohibitory
+  1: danger
+  2: mandatory
+  3: other
