@@ -139,5 +139,4 @@ if __name__ == '__main__':
     elif question_dessin == 1:
         pass
 
-    # TODO : dessin des détections sur l'image de base
     # TODO facultatif : faire le lien entre l'image cropée et le type de panneau détecté dessus, pour fournir la détection exacte (position et type) sur l'image de base
