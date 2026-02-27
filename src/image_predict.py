@@ -1,11 +1,13 @@
 from ultralytics import YOLO
-from ultralytics.utils.nms import non_max_suppression
 import torch
 import cv2
+from ultralytics.utils.ops import scale_boxes
+from torchvision.ops import nms
 
 
 def shape_detection(shapeDetector_path:str,image_path:str):
     img = cv2.imread(image_path)
+    h0,w0 = img.shape[:2] # récup de la taille réelle
     shapeDetector = YOLO(shapeDetector_path)
 
     imgszs = [640, 320, 160]  # 3 inférences pour choper les panneaux à différentes "distances"
@@ -15,17 +17,25 @@ def shape_detection(shapeDetector_path:str,image_path:str):
     for size in imgszs:
         results = shapeDetector.predict(image_path, imgsz=size, conf=0.25)
 
-        for box in results[0].boxes:
-            b = box.data  # [x1, y1, x2, y2, confidence, class]
-            all_predictions.append(b)
+        boxes = results[0].boxes
+        if len(boxes)>0:
+            raw_data = boxes.data.clone() # copie des résultats (pour garder l'original au cas ou)
+            raw_data[:, :4] = scale_boxes(results[0].orig_shape, raw_data[:, :4], (h0, w0)) # on dit au modèle de ramener les détections a la taille originale
+            all_predictions.append(raw_data) # on ajoute a la liste une fois que tout tient ensemble
+
+        #for box in results[0].boxes:
+            #b = box.data  # [x1, y1, x2, y2, confidence, class]
+            #all_predictions.append(b)
 
     if len(all_predictions) > 0:
         # concaténation de toutes les détections dans un tensor
         all_predictions = torch.cat(all_predictions, dim=0)
+        boxes = all_predictions[:, :4]  # x1, y1, x2, y2
+        scores = all_predictions[:, 4]  # confiance
 
         # NMS pour fusionner les boites et éviter les doublons
-        best_unique_boxes = non_max_suppression(all_predictions.unsqueeze(0), conf_thres=0.25, iou_thres=0.25)
-        final_boxes = best_unique_boxes[0]
+        keep_indices = nms(boxes, scores, iou_threshold=0.45)
+        final_boxes = all_predictions[keep_indices]
 
         print(f"Nombre de panneaux uniques trouvés : {len(final_boxes)}")
     else:
@@ -40,6 +50,7 @@ def shape_detection(shapeDetector_path:str,image_path:str):
         cv2.rectangle(img, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 2)
 
     cv2.imshow("Detection Finale Fusionnee", img)
+    cv2.waitKey(0)
 
 
 if __name__ == '__main__':
