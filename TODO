@@ -1,8 +1,3 @@
-- Predictions
-- Interpreting predictions
 - Predictions on videos
 - Pipeline (training -> eval -> prediction automatically)
 - Dockerization
-
-- Meilleur modèle actuel : Augmentation_Epoch6, slicé en 640-640, conf 0.3. Seul problème : détecte des MeetingZone & GoAheadSquare sur tout panneau bleu avec du blanc
-- Idée : 1 modèle "géométrique" qui détecte les panneaux eux-même (rond, rectangle, carré, triangle) et un 2e qui lit le panneau
