@@ -1,4 +1,3 @@
-from sympy.codegen.ast import continue_
 from ultralytics import YOLO
 import torch
 import cv2
