@@ -51,6 +51,7 @@ def shape_detection(shapeDetector_path:str,img):
         # dessin sur image (vérif, facultatif)
         #cv2.rectangle(img, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 2)
 
+    # pour vérif
     #cv2.imshow("Detection Finale Fusionnee", img)
     #cv2.waitKey(0)
 
@@ -110,9 +111,31 @@ def get_detected_signs(final_signs):
 
     for sign in final_signs:
         label = sign.get('final_class')
-        detected_signs[label] = detected_signs.get(label, 0) + 1
+        coords = sign.get('coords_orig',[0,0,0,0])
+        conf = sign.get('final_conf', 0.0)
+
+        if label == 'Inconnu/Rejeté':
+            continue
+
+        if label not in detected_signs:
+            detected_signs[label] = []
+
+        detected_signs[label].append({
+            "box": coords,  # [x1, y1, x2, y2]
+            "confidence": round(conf, 2)
+        })
 
     return detected_signs
+
+
+def print_detections(detected_signs):
+    print(" ")
+
+    for label, detections in detected_signs.items():
+        print(f"Panneau : {label} | {len(detections)} détection(s)")
+
+        for d in detections:
+            print(f" -> Position : {d['box']} | Confiance: {d['confidence']}")
 
 
 if __name__ == '__main__':
@@ -122,21 +145,8 @@ if __name__ == '__main__':
     image_path = str(input("Chemin de l'image"))
     img = cv2.imread(image_path)
 
-    question_dessin = int(input("Dessin final? (0 pour oui, 1 pour non)"))
-    if question_dessin != 0 and question_dessin != 1:
-        raise ValueError("Nombre invalide")
-
     final_boxes = shape_detection(shapeDetector_path, img)
     cropped_signs = get_crops(img,final_boxes)
     final_signs = sign_detection(signDetector_path,cropped_signs)
-    detected_signs = get_detected_signs(final_signs)
-
-    for sign in detected_signs:
-        print(f"Panneau détecté : {sign} | {detected_signs[sign]} détections")
-
-    if question_dessin == 0:
-        pass
-    elif question_dessin == 1:
-        pass
-
-    # TODO facultatif : faire le lien entre l'image cropée et le type de panneau détecté dessus, pour fournir la détection exacte (position et type) sur l'image de base
+    detected_signs = get_detected_signs(final_signs) # detected_signs = liste finale des panneaux identifiés, variable utile pour d'autres traitements éventuels
+    print_detections(detected_signs)
