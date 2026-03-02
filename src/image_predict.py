@@ -14,7 +14,7 @@ def shape_detection(shapeDetector_path:str,img):
 
     # inférences
     for size in imgszs:
-        results = shapeDetector.predict(img, imgsz=size, conf=0.25)
+        results = shapeDetector.predict(img, imgsz=size, conf=0.25,verbose=False)
 
         boxes = results[0].boxes
         if len(boxes)>0:
@@ -88,11 +88,11 @@ def get_crops(img,final_boxes,padding=10):
 
 
 def sign_detection(signDetector_path,cropped_signs):
-    print("Début détection panneau")
+    #print("Début détection panneau")
     signDetector = YOLO(signDetector_path)
 
     for sign in cropped_signs:
-        results = signDetector.predict(sign['image'])
+        results = signDetector.predict(sign['image'],verbose=False)
 
         if len(results[0].boxes) > 0:
             top_box = results[0].boxes[0]
@@ -101,6 +101,10 @@ def sign_detection(signDetector_path,cropped_signs):
         else:
             sign['final_class'] = "Inconnu/Rejeté"
             sign['final_conf'] = 0.0
+
+        #test
+        cv2.imshow("Tracking", sign['image'])
+        cv2.waitKey(0)
 
     return cropped_signs
 
