@@ -21,12 +21,12 @@ def video_shape_detection_4fps(shapeDetector_path:str,video_path:str):
             break
 
         if frame_count % skip_frames == 0:
-            results = shapeDetector.predict(frame, conf=0.25, verbose=False)
+            results = shapeDetector.track(frame, persist=True)
 
             print(f"Inférence faite sur la frame {frame_count}")
             print(results[0].boxes.cls)
-            print(results[0].probs)
-            results[0].show()
+            #results[0].show()
+            print("Box id : ",results[0].boxes.id)
 
         frame_count += 1
 
@@ -43,8 +43,8 @@ def video_shape_detection_basic(shapeDetector_path:str,video_path:str):
 
 if __name__ == '__main__':
     shapeDetector_path = "../models/ShapeDetector_Kaggle_Epoch20.pt"
-    video_path = "../datasets/archive/traffic-sign-to-test.mp4"
-    video_path2 = "../datasets/video1_nuit.mp4"
+    video_path = "../../datasets/archive/traffic-sign-to-test.mp4"
+    video_path2 = "../../datasets/video1_nuit.mp4"
 
     video_shape_detection_4fps(shapeDetector_path, video_path)
-    video_shape_detection_basic(shapeDetector_path, video_path)
+    #video_shape_detection_basic(shapeDetector_path, video_path)
