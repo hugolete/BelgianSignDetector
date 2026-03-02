@@ -1,12 +1,12 @@
 from ultralytics import YOLO
 import cv2
+from image_predict import sign_detection, get_detected_signs, print_detections
 
 
 def video_shape_detection(shapeDetector_path:str,video_path:str):
     shapeDetector = YOLO(shapeDetector_path)
 
     detected_ids = set()
-    crops_list = []
     boxId_to_class = {}
     max_detections_per_sec = 4
 
@@ -26,6 +26,7 @@ def video_shape_detection(shapeDetector_path:str,video_path:str):
 
         if frame_count % skip_frames == 0:
             results = shapeDetector.track(frame, persist=True)
+            crops_list = []
 
             print(f"Inférence faite sur la frame {frame_count}")
             #print(results[0].boxes)
@@ -45,7 +46,8 @@ def video_shape_detection(shapeDetector_path:str,video_path:str):
 
                     if box_id not in detected_ids:
                         # on croppe et on envoie au modèle expert
-                        x1, y1, x2, y2 = coords.tolist()
+                        print("Nouvelle box")
+                        x1, y1, x2, y2 = box_coords.tolist()
                         cropped_frame = crop_sign(frame,box_coords)
                         crops_list.append({
                             "image": cropped_frame,
@@ -53,6 +55,14 @@ def video_shape_detection(shapeDetector_path:str,video_path:str):
                         })
 
                     detected_ids.add(box_id)
+
+                print("Crops list : ",crops_list)
+                print("Detected ids : ",detected_ids)
+
+                # détection sur image cropée & affichage console
+                cropped_signs = sign_detection("../models/FinalModel.pt",crops_list)
+                detected_signs = get_detected_signs(cropped_signs)
+                print_detections(detected_signs)
 
             #test
             """annotated_frame = results[0].plot()
