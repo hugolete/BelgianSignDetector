@@ -24,14 +24,23 @@ def video_shape_detection_4fps(shapeDetector_path:str,video_path:str):
             results = shapeDetector.track(frame, persist=True)
 
             print(f"Inférence faite sur la frame {frame_count}")
-            print(results[0].boxes)
+            #print(results[0].boxes)
             #results[0].show()
-            print("Box id : ",results[0].boxes.id)
+            #print("Box id : ",results[0].boxes.id)
             track_ids = results[0].boxes.id.cpu().numpy()
-            print(track_ids)
+            #print(track_ids)
 
-            for id_detec in track_ids:
+            coordinates = results[0].boxes.xyxy.cpu().numpy()
+            #print(coordinates)
+
+            """for id_detec in track_ids:
                 print(id_detec)
+                box_coords = coordinates[int(id_detec) - 1]
+                print(box_coords)"""
+
+            for id_detec, box_coords in zip(track_ids, coordinates):
+                print(id_detec)
+                print(box_coords)
 
         frame_count += 1
 
