@@ -103,8 +103,9 @@ def sign_detection(signDetector_path,cropped_signs):
             sign['final_conf'] = 0.0
 
         #test
+        """annotated_frame = results[0].plot()
         cv2.imshow("Tracking", sign['image'])
-        cv2.waitKey(0)
+        cv2.waitKey(0)"""
 
     return cropped_signs
 
@@ -131,14 +132,15 @@ def get_detected_signs(final_signs):
     return detected_signs
 
 
-def print_detections(detected_signs):
+def print_detections(detected_signs,min_conf:float):
     print(" ")
 
     for label, detections in detected_signs.items():
         print(f"Panneau : {label} | {len(detections)} détection(s)")
 
         for d in detections:
-            print(f" -> Position : {d['box']} | Confiance: {d['confidence']}")
+            if d['confidence'] > min_conf:
+                print(f" -> Position : {d['box']} | Confiance: {d['confidence']}")
 
 
 if __name__ == '__main__':
@@ -152,4 +154,4 @@ if __name__ == '__main__':
     cropped_signs = get_crops(img,final_boxes)
     final_signs = sign_detection(signDetector_path,cropped_signs)
     detected_signs = get_detected_signs(final_signs) # detected_signs = liste finale des panneaux identifiés, variable utile pour d'autres traitements éventuels
-    print_detections(detected_signs)
+    print_detections(detected_signs,0.25)
