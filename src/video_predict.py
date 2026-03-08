@@ -35,6 +35,7 @@ def video_shape_detection(shapeDetector_path:str,video_path:str):
             if boxes.id is not None:
                 track_ids = boxes.id.cpu().numpy()
                 coords = boxes.xyxy.cpu().numpy()
+                #print("Track ids : ",track_ids)
 
                 current_frame_positions = []
 
@@ -69,27 +70,28 @@ def video_shape_detection(shapeDetector_path:str,video_path:str):
 
                 # détection sur image cropée & affichage console
                 cropped_signs = sign_detection("../models/FinalModel.pt",crops_list)
-                detected_signs = get_detected_signs(cropped_signs)
-                print_detections(detected_signs,0.40)
+                if cropped_signs:
+                    detected_signs = get_detected_signs(cropped_signs)
+                    print_detections(detected_signs,0.40)
 
-                for label, detections in detected_signs.items():
-                    for d in detections:
-                        if not is_duplicate(d['box'],frame_count,total_detected_signs,label_to_check=label):
-                            total_detected_signs.append({
-                                "label": label,
-                                "position": d['box'],
-                                "conf":d['confidence'],
-                                "frame":frame_count
-                            })
-                        else:
-                            print(f"p Double détecté pour {label}, ignoré.")
+                    for label, detections in detected_signs.items():
+                        for d in detections:
+                            if not is_duplicate(d['box'],frame_count,total_detected_signs,label_to_check=label):
+                                total_detected_signs.append({
+                                    "label": label,
+                                    "position": d['box'],
+                                    "conf":d['confidence'],
+                                    "frame":frame_count
+                                })
+                            else:
+                                print(f"p Double détecté pour {label}, ignoré.")
 
             #test
             """annotated_frame = results[0].plot()
             cv2.imshow("Tracking", annotated_frame)
             cv2.waitKey(0)
             cv2.imshow("Tracking", frame)
-            cv2.waitKey(0))"""
+            cv2.waitKey(0)"""
 
         frame_count += 1
 
@@ -117,7 +119,7 @@ def crop_sign(frame,coords):
 
     # découpage Numpy
     cropped_frame = frame[iy1:iy2, ix1:ix2]
-    """cv2.imshow("Tracking", cropped_frame)
+    """cv2.imshow("Tracking crop", cropped_frame)
     cv2.waitKey(0)"""
 
     return cropped_frame
