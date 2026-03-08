@@ -33,18 +33,14 @@ def video_shape_detection(shapeDetector_path:str,video_path:str):
             boxes = results[0].boxes
 
             if boxes.id is not None:
-                class_ids = boxes.cls.cpu().numpy()
-                confidences = boxes.conf.cpu().numpy()
                 track_ids = boxes.id.cpu().numpy()
                 coords = boxes.xyxy.cpu().numpy()
-                #print(class_ids, confidences,coords)
 
                 current_frame_positions = []
 
                 for box_id, box_coords in zip(track_ids,coords):
                     if box_id not in detected_ids:
                         # on croppe et on envoie au modèle expert
-                        #print("Nouvelle box")
                         x1, y1, x2, y2 = box_coords.tolist()
                         width = x2 - x1
                         height = y2 - y1
@@ -71,9 +67,6 @@ def video_shape_detection(shapeDetector_path:str,video_path:str):
                     cv2.imshow("Tracking", annotated_frame)
                     cv2.waitKey(0)"""
 
-                #print("Crops list : ",crops_list)
-                #print("Detected ids : ",detected_ids)
-
                 # détection sur image cropée & affichage console
                 cropped_signs = sign_detection("../models/FinalModel.pt",crops_list)
                 detected_signs = get_detected_signs(cropped_signs)
@@ -81,19 +74,22 @@ def video_shape_detection(shapeDetector_path:str,video_path:str):
 
                 for label, detections in detected_signs.items():
                     for d in detections:
-                        total_detected_signs.append({
-                            "label": label,
-                            "position": d['box'],
-                            "conf":d['confidence'],
-                            "frame":frame_count
-                        })
+                        if not is_duplicate(d['box'],frame_count,total_detected_signs,label_to_check=label):
+                            total_detected_signs.append({
+                                "label": label,
+                                "position": d['box'],
+                                "conf":d['confidence'],
+                                "frame":frame_count
+                            })
+                        else:
+                            print(f"p Double détecté pour {label}, ignoré.")
 
             #test
             """annotated_frame = results[0].plot()
             cv2.imshow("Tracking", annotated_frame)
             cv2.waitKey(0)
             cv2.imshow("Tracking", frame)
-            cv2.waitKey(0)"""
+            cv2.waitKey(0))"""
 
         frame_count += 1
 
@@ -101,7 +97,8 @@ def video_shape_detection(shapeDetector_path:str,video_path:str):
 
     print("Panneaux détectés sur la vidéo : ")
     for sign in total_detected_signs:
-        print(f"Panneau : {sign['label']} -> Position : {sign['position']} | Confiance: {sign['conf']} | Frame : {sign['frame']}")
+        if sign['conf'] > 0.40:
+            print(f"Panneau : {sign['label']} -> Position : {sign['position']} | Confiance: {sign['conf']} | Frame : {sign['frame']}")
 
 
 def crop_sign(frame,coords):
@@ -126,11 +123,15 @@ def crop_sign(frame,coords):
     return cropped_frame
 
 
-def is_duplicate(new_coords,new_frame,sign_list,pos_threshold=20,frame_threshold=20):
-    nx1, ny1, nx2, ny2 = new_coords.tolist()
+def is_duplicate(new_coords,new_frame,sign_list,pos_threshold=60,frame_threshold=20,label_to_check=None):
+    nx1, ny1, nx2, ny2 = new_coords
     new_center = ((nx1 + nx2) / 2, (ny1 + ny2) / 2)
 
     for sign in sign_list:
+        if label_to_check is not None:
+            if sign.get('label') != label_to_check:
+                continue  # ce n'est pas le même type
+
         ox1, oy1, ox2, oy2 = sign['position']
         old_center = ((ox1 + ox2) / 2, (oy1 + oy2) / 2)  # tuple
 
@@ -138,7 +139,7 @@ def is_duplicate(new_coords,new_frame,sign_list,pos_threshold=20,frame_threshold
         dist_y = abs(new_center[1] - old_center[1])
         frame_diff = abs(new_frame - sign['frame'])
 
-        if dist_x < pos_threshold and dist_y < pos_threshold and frame_diff < frame_threshold:
+        if (dist_x < pos_threshold and dist_y < pos_threshold) and (frame_diff < frame_threshold):
             return True
 
     return False
@@ -148,5 +149,6 @@ if __name__ == '__main__':
     shapeDetector_path = "../models/ShapeDetector_Kaggle_Epoch20.pt"
     video_path = "../datasets/archive/traffic-sign-to-test.mp4"
     video_path2 = "../datasets/video1_nuit.mp4"
+    video_path3 = "../datasets/video2.mp4"
 
     video_shape_detection(shapeDetector_path, video_path2)
