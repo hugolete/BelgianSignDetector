@@ -1,9 +1,9 @@
 from ultralytics import YOLO
 import cv2
-from image_predict import sign_detection, get_detected_signs, print_detections
+from src.image_predict import sign_detection, get_detected_signs, print_detections
 
 
-def video_shape_detection(shapeDetector_path:str,video_path:str):
+def video_shape_detection(shapeDetector_path:str,video_path:str,test:bool=False):
     shapeDetector = YOLO(shapeDetector_path)
     detected_ids = set()
     max_detections_per_sec = 7
@@ -28,14 +28,14 @@ def video_shape_detection(shapeDetector_path:str,video_path:str):
             results = shapeDetector.track(frame, persist=True,verbose=False)
             crops_list = []
 
-            print(f"Frame {frame_count+1}")
+            #print(f"Frame {frame_count+1}")
             # récupération résultats
             boxes = results[0].boxes
 
             if boxes.id is not None:
                 track_ids = boxes.id.cpu().numpy()
                 coords = boxes.xyxy.cpu().numpy()
-                print("Track ids : ",track_ids)
+                #print("Track ids : ",track_ids)
 
                 current_frame_positions = []
 
@@ -45,7 +45,7 @@ def video_shape_detection(shapeDetector_path:str,video_path:str):
                         x1, y1, x2, y2 = box_coords.tolist()
                         width = x2 - x1
                         height = y2 - y1
-                        print("Width | Height : ",width," | Height : ",height)
+                        #print("Width | Height : ",width," | Height : ",height)
 
                         if width >= min_size and height >= min_size:
                             if not is_duplicate(box_coords, frame_count, total_detected_signs+current_frame_positions):
@@ -101,6 +101,9 @@ def video_shape_detection(shapeDetector_path:str,video_path:str):
     for sign in total_detected_signs:
         if sign['conf'] > 0.40:
             print(f"Panneau : {sign['label']} -> Position : {sign['position']} | Confiance: {sign['conf']} | Frame : {sign['frame']}")
+
+    if test:
+        return total_detected_signs
 
 
 def crop_sign(frame,coords):

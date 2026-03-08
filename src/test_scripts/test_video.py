@@ -2,10 +2,10 @@ from ultralytics import YOLO
 import cv2
 
 
-def video_shape_detection_4fps(shapeDetector_path:str,video_path:str):
+def video_shape_detection_7fps(shapeDetector_path:str,video_path:str):
     shapeDetector = YOLO(shapeDetector_path)
 
-    max_detections_per_sec = 4
+    max_detections_per_sec = 7
 
     # ouverture vidéo pour compter fps
     vid = cv2.VideoCapture(video_path)
@@ -59,6 +59,7 @@ if __name__ == '__main__':
     shapeDetector_path = "../models/ShapeDetector_Kaggle_Epoch20.pt"
     video_path = "../../datasets/archive/traffic-sign-to-test.mp4"
     video_path2 = "../../datasets/video1_nuit.mp4"
+    video_path3 = "../../datasets/video2.mp4"
 
-    video_shape_detection_4fps(shapeDetector_path, video_path)
-    #video_shape_detection_basic(shapeDetector_path, video_path)
+    #video_shape_detection_7fps(shapeDetector_path, video_path)
+    video_shape_detection_basic(shapeDetector_path, video_path)
