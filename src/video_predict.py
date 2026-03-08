@@ -35,7 +35,7 @@ def video_shape_detection(shapeDetector_path:str,video_path:str):
             if boxes.id is not None:
                 track_ids = boxes.id.cpu().numpy()
                 coords = boxes.xyxy.cpu().numpy()
-                #print("Track ids : ",track_ids)
+                print("Track ids : ",track_ids)
 
                 current_frame_positions = []
 
@@ -45,7 +45,7 @@ def video_shape_detection(shapeDetector_path:str,video_path:str):
                         x1, y1, x2, y2 = box_coords.tolist()
                         width = x2 - x1
                         height = y2 - y1
-                        #print("Width | Height : ",width," | Height : ",height)
+                        print("Width | Height : ",width," | Height : ",height)
 
                         if width >= min_size and height >= min_size:
                             if not is_duplicate(box_coords, frame_count, total_detected_signs+current_frame_positions):
@@ -153,4 +153,4 @@ if __name__ == '__main__':
     video_path2 = "../datasets/video1_nuit.mp4"
     video_path3 = "../datasets/video2.mp4"
 
-    video_shape_detection(shapeDetector_path, video_path2)
+    video_shape_detection(shapeDetector_path, video_path3)
