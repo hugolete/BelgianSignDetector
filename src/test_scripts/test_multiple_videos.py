@@ -8,6 +8,9 @@ if __name__ == "__main__":
         "../../datasets/archive/traffic-sign-to-test.mp4",
         "../../datasets/video1_nuit.mp4",
         "../../datasets/video2.mp4",
+        "../../datasets/video3.mp4",
+        "../../datasets/video4.mp4",
+        "../../datasets/video5.mp4",
     ]
 
     for video_path in video_paths:
