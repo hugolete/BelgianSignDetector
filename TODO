@@ -1,3 +1,4 @@
-- Predictions on videos
+- Predictions on camera
+- OCR for speed limit signs (?)
 - Pipeline (training -> eval -> prediction automatically)
 - Dockerization
