@@ -1,6 +1,7 @@
 from ultralytics import YOLO
 import cv2
 from src.image_predict import sign_detection, get_detected_signs, print_detections
+import time, os
 
 
 def video_shape_detection(shapeDetector_path:str,video_path:str,test:bool=False):
@@ -50,6 +51,13 @@ def video_shape_detection(shapeDetector_path:str,video_path:str,test:bool=False)
                         if width >= min_size and height >= min_size:
                             if not is_duplicate(box_coords, frame_count, total_detected_signs+current_frame_positions):
                                 cropped_frame = crop_sign(frame,box_coords)
+
+                                """try:
+                                    print("Save crop")
+                                    formatted_time = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())
+                                    cv2.imwrite(f"crops/crop_{formatted_time}.jpg", cropped_frame)
+                                except Exception as e:
+                                    print("Erreur crop : ",e)"""
 
                                 crops_list.append({
                                     "image": cropped_frame,
@@ -112,7 +120,7 @@ def crop_sign(frame,coords):
 
     x1, y1, x2, y2 = coords.tolist()
     width = x2 - x1
-    padding = int(width*0.2)
+    padding = int(width*0.15)
 
     # application du padding pour ne pas risquer un bug
     ix1 = max(0, int(x1) - padding)
