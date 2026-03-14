@@ -5,7 +5,7 @@ import cv2
 if __name__ == '__main__':
     model = YOLO("../models/ShapeDetector_Kaggle_Epoch20.pt")
 
-    results = model(source=1, stream=True)  # generator of Results objects
+    results = model.track(source=1, stream=True)  # generator of Results objects
 
     for r in results:
         boxes = r.boxes
@@ -20,4 +20,6 @@ if __name__ == '__main__':
                 print(f"ID: {box_id} | Coords: {box_coords}")
 
         cv2.imshow("Stream", r.plot())
-        cv2.waitKey(0)
+
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
