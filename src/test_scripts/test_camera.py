@@ -1,11 +1,13 @@
 from ultralytics import YOLO
 import cv2
-
+from utils.find_cameras import get_best_camera
 
 if __name__ == '__main__':
     model = YOLO("../models/ShapeDetector_Kaggle_Epoch20.pt")
 
-    results = model.track(source=1, stream=True)  # generator of Results objects
+    source = get_best_camera()
+
+    results = model.track(source=str(source), stream=True)  # generator of Results objects
 
     for r in results:
         boxes = r.boxes
