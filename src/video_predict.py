@@ -11,9 +11,26 @@ def video_shape_detection(shapeDetector_path:str,video_path:str,test:bool=False)
     total_detected_signs = []
     min_size = 20
 
-    # ouverture vidéo pour compter fps
-    vid = cv2.VideoCapture(video_path)
+    # vérification : vidéo ou webcam
+    is_webcam = False
+
+    # si la source est un int ou un nombre sous forme de string => webcam, c'est reconnu
+    if isinstance(video_path, int):
+        is_webcam = True
+    elif isinstance(video_path, str) and video_path.isdigit():
+        is_webcam = True
+
+    # ouverture vidéo/webcam
+    if is_webcam:
+        vid = cv2.VideoCapture(int(video_path), cv2.CAP_DSHOW)
+    else:
+        vid = cv2.VideoCapture(video_path)
+
     fps = vid.get(cv2.CAP_PROP_FPS)
+
+    # parfois avec la cam : fps non reconnu, on passe a 30 par défaut
+    if fps <= 0:
+        fps = 30
 
     skip_frames = int(fps / max_detections_per_sec)
     print(f"FPS : {fps}. Inférence sur 1 image toutes les {skip_frames} frames.")

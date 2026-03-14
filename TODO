@@ -1,4 +1,2 @@
-- Predictions on camera
-- OCR for speed limit signs (?)
-- Pipeline (training -> eval -> prediction automatically)
-- Dockerization
+- Dockerization (+ API pour communication)
+- OCR pour les panneaux speed limit (bonus)
