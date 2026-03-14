@@ -120,7 +120,7 @@ def crop_sign(frame,coords):
 
     x1, y1, x2, y2 = coords.tolist()
     width = x2 - x1
-    padding = int(width*0.15)
+    padding = int(width*0.1)
 
     # application du padding pour ne pas risquer un bug
     ix1 = max(0, int(x1) - padding)
