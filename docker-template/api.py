@@ -1,9 +1,10 @@
 import subprocess
+import zipfile
 import cv2
 import torch
 import os
 from factorymlops.trainers.YOLOTraining import YOLOTraining
-from fastapi import FastAPI, File, UploadFile, BackgroundTasks
+from fastapi import FastAPI, File, UploadFile, BackgroundTasks, HTTPException
 from fastapi.responses import JSONResponse
 import shutil
 import uvicorn
@@ -15,6 +16,7 @@ from src.video_predict import video_shape_detection
 app = FastAPI()
 shapeDetector_path = "ShapeDetector_Kaggle_Epoch20.pt"
 signDetector_path = "FinalModel.pt"
+dataset_dir = "/app/datasets/"
 
 #chargement modèle
 if torch.cuda.is_available():
@@ -24,10 +26,10 @@ else:
 
 try:
     shapeDetector_model = YOLO("ShapeDetector_Kaggle_Epoch20.pt")
-    sign_model = YOLO("model.pt")
+    sign_model = YOLO("FinalModel.pt")
     print("Modèles chargés !")
 except Exception as e:
-    raise ValueError("Erreur lors du chargement du modèle")
+    raise ValueError("Erreur lors du chargement des modèles")
 
 
 @app.post("/predict/")
@@ -55,7 +57,7 @@ async def predict_image(background_tasks: BackgroundTasks, file: UploadFile = Fi
         return JSONResponse(status_code=400, content={"error": str(e)})
 
 
-@app.post("/videopredict/")
+@app.post("/video-predict/")
 async def predict_video(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
     try:
         file_location = f"/tmp/{file.filename}"
@@ -75,16 +77,14 @@ async def predict_video(background_tasks: BackgroundTasks, file: UploadFile = Fi
         return JSONResponse(status_code=400, content={"error": str(e)})
 
 
-@app.post("/training_shapeDetector/")
-async def training_shapeDetector(background_tasks: BackgroundTasks, nb_epochs:int,exp_name:str,batch_size:int,learning_rate:float,patience:int,dataset: UploadFile = File(...),):
+@app.post("/training-shapeDetector/")
+async def training_shapeDetector(background_tasks: BackgroundTasks, nb_epochs:int,exp_name:str,batch_size:int,learning_rate:float,patience:int,dataset_name:str):
     model_path = "ShapeDetector_Kaggle_Epoch20.pt"
     background_tasks.add_task(load_mlflow)
 
     try:
-        # téléchargement dataset (il doit être upload sous forme zippée)
+        # téléchargement & unzip dataset (il doit être upload sous forme zippée)
         # TODO
-        zipped_dataset_path = ""
-        unzip_dataset(zipped_dataset_path)
 
         trainer = YOLOTraining()
 
@@ -107,13 +107,47 @@ async def training_shapeDetector(background_tasks: BackgroundTasks, nb_epochs:in
         return JSONResponse(status_code=400, content={"error": str(e)})
 
 
+@app.post("/upload-dataset/")
+async def upload_dataset(background_tasks: BackgroundTasks, dataset: UploadFile = File(...)):
+    if not dataset.filename.endswith(".zip"):
+        raise HTTPException(status_code=400, detail="Seuls les fichiers .zip sont acceptés")
+
+    nom_fichier = dataset.filename
+    nom_dataset = os.path.splitext(nom_fichier)[0]
+    zip_path = os.path.join(dataset_dir, nom_fichier)
+    extract_folder = os.path.join(dataset_dir, nom_dataset)
+
+    try:
+        with open(zip_path, "wb") as buffer:
+            shutil.copyfileobj(dataset.file, buffer)
+
+        if not os.path.exists(extract_folder):
+            os.makedirs(extract_folder)
+
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall(extract_folder)
+
+        return JSONResponse(status_code=200, content={"dataset_name": nom_dataset})
+    except Exception as e:
+        return JSONResponse(status_code=400, content={"error": str(e)})
+
+
+@app.get("/datasets/")
+async def get_datasets(background_tasks: BackgroundTasks):
+    response = []
+
+    try:
+        for folder in os.listdir(dataset_dir):
+            if os.path.isdir(os.path.join(dataset_dir, folder)):
+                response.append(folder)
+
+        return JSONResponse(status_code=200, content={"datasets": response})
+    except Exception as e:
+        return JSONResponse(status_code=400, content={"error": str(e)})
+
+
 def load_mlflow():
     subprocess.run("mlflow ui")
-
-
-def unzip_dataset(zipped_dataset_path:str):
-    #TODO
-    pass
 
 
 if __name__ == "__main__":
