@@ -17,6 +17,7 @@ app = FastAPI()
 shapeDetector_path = "ShapeDetector_Kaggle_Epoch20.pt"
 signDetector_path = "FinalModel.pt"
 dataset_dir = "/app/datasets/"
+models_dir = "/app/models/"
 
 #chargement modèle
 if torch.cuda.is_available():
@@ -77,14 +78,12 @@ async def predict_video(background_tasks: BackgroundTasks, file: UploadFile = Fi
         return JSONResponse(status_code=400, content={"error": str(e)})
 
 
-@app.post("/training-shapeDetector/")
-async def training_shapeDetector(background_tasks: BackgroundTasks, nb_epochs:int,exp_name:str,batch_size:int,learning_rate:float,patience:int,dataset_name:str):
-    model_path = "ShapeDetector_Kaggle_Epoch20.pt"
-    background_tasks.add_task(load_mlflow)
-
+@app.post("/training-model/{model_name}/")
+async def training_model(background_tasks: BackgroundTasks, nb_epochs:int,exp_name:str,batch_size:int,learning_rate:float,patience:int,dataset_name:str,model_name:str):
     try:
-        # téléchargement & unzip dataset (il doit être upload sous forme zippée)
-        # TODO
+        model_path = os.path.join(models_dir, model_name)
+        dataset_path = os.path.join(dataset_dir, dataset_name)
+        background_tasks.add_task(load_mlflow)
 
         trainer = YOLOTraining()
 
@@ -142,6 +141,39 @@ async def get_datasets(background_tasks: BackgroundTasks):
                 response.append(folder)
 
         return JSONResponse(status_code=200, content={"datasets": response})
+    except Exception as e:
+        return JSONResponse(status_code=400, content={"error": str(e)})
+
+
+@app.get("/models/")
+async def get_models(background_tasks: BackgroundTasks):
+    response = []
+
+    try:
+        for file in os.listdir(models_dir):
+            response.append(file)
+
+        return JSONResponse(status_code=200, content={"models": response})
+    except Exception as e:
+        return JSONResponse(status_code=400, content={"error": str(e)})
+
+
+@app.delete("/datasets/{dataset_name}")
+async def delete_dataset(background_tasks: BackgroundTasks, dataset_name: str):
+    try:
+        os.remove(os.path.join(dataset_dir, dataset_name))
+
+        return JSONResponse(status_code=200, content={"dataset_name": dataset_name})
+    except Exception as e:
+        return JSONResponse(status_code=400, content={"error": str(e)})
+
+
+@app.delete("/models/{model_name}")
+async def delete_model(background_tasks: BackgroundTasks, model_name: str):
+    try:
+        os.remove(os.path.join(models_dir, model_name))
+
+        return JSONResponse(status_code=200, content={"model_name": model_name})
     except Exception as e:
         return JSONResponse(status_code=400, content={"error": str(e)})
 
