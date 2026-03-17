@@ -5,7 +5,7 @@ import torch
 import os
 from factorymlops.trainers.YOLOTraining import YOLOTraining
 from fastapi import FastAPI, File, UploadFile, BackgroundTasks, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 import shutil
 import uvicorn
 from ultralytics import YOLO
@@ -180,6 +180,19 @@ async def delete_model(background_tasks: BackgroundTasks, model_name: str):
 
 def load_mlflow():
     subprocess.run("mlflow ui")
+
+
+def download_file(path:str):
+    if not os.path.exists(path):
+        raise HTTPException(status_code=404, detail="Fichier non trouvé. Vérifiez le chemin")
+
+    filename = os.path.basename(path).split('/')[-1]
+
+    return FileResponse(
+        path=path,
+        filename=f"{filename}.zip",  # Le nom que l'utilisateur verra lors du téléchargement
+        media_type='application/zip'
+    )
 
 
 if __name__ == "__main__":
