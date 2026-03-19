@@ -186,12 +186,12 @@ def download_file(path:str):
     if not os.path.exists(path):
         raise HTTPException(status_code=404, detail="Fichier non trouvé. Vérifiez le chemin")
 
-    filename = os.path.basename(path).split('/')[-1]
+    filename = os.path.basename(path)
 
     return FileResponse(
         path=path,
-        filename=f"{filename}.zip",  # Le nom que l'utilisateur verra lors du téléchargement
-        media_type='application/zip'
+        filename=filename,
+        media_type='application/octet-stream'
     )
 
 
