@@ -1,5 +1,6 @@
 import subprocess
 import zipfile
+from collections import deque
 import cv2
 import torch
 import os
@@ -18,6 +19,8 @@ shapeDetector_path = "ShapeDetector_Kaggle_Epoch20.pt"
 signDetector_path = "FinalModel.pt"
 dataset_dir = "/app/datasets/"
 models_dir = "/app/models/"
+log_file = "/app/api_log.log" #TODO dockerfile : lui faire écrire les logs dans ce fichier
+status = "IDLE" # TODO : gérer les changements de statut
 
 #chargement modèle
 if torch.cuda.is_available():
@@ -26,8 +29,8 @@ else:
     device = torch.device("cpu")
 
 try:
-    shapeDetector_model = YOLO("ShapeDetector_Kaggle_Epoch20.pt")
-    sign_model = YOLO("FinalModel.pt")
+    shapeDetector_model = YOLO(os.path.join(models_dir, "ShapeDetector_Kaggle_Epoch20.pt"))
+    sign_model = YOLO(os.path.join(models_dir, "FinalModel.pt"))
     print("Modèles chargés !")
 except Exception as e:
     raise ValueError("Erreur lors du chargement des modèles")
@@ -95,11 +98,13 @@ async def training_model(background_tasks: BackgroundTasks, nb_epochs:int,exp_na
             "http://127.0.0.1:5000",
             exp_name,
             dataset_path,
-            "../models/",
+            "../models/", #TODO timestamp
             batch_size,
             learning_rate,
             patience
         )
+
+        #TODO logging
 
         return JSONResponse(status_code=200, content={"results_training": results_training})
     except Exception as e:
@@ -132,7 +137,7 @@ async def upload_dataset(background_tasks: BackgroundTasks, dataset: UploadFile 
 
 
 @app.get("/datasets/")
-async def get_datasets(background_tasks: BackgroundTasks):
+async def get_datasets():
     response = []
 
     try:
@@ -146,7 +151,7 @@ async def get_datasets(background_tasks: BackgroundTasks):
 
 
 @app.get("/models/")
-async def get_models(background_tasks: BackgroundTasks):
+async def get_models():
     response = []
 
     try:
@@ -192,6 +197,44 @@ def download_file(path:str):
         path=path,
         filename=filename,
         media_type='application/octet-stream'
+    )
+
+
+@app.get("/status/")
+async def get_status():
+    #TODO
+    pass
+
+
+@app.get("/logs/")
+async def get_logs():
+    if not os.path.exists(log_file):
+        return {"logs": ["Fichier de log pas généré"]}
+
+    try:
+        # on ne garde que les 20 dernières lignes
+        with open(log_file, "r", encoding="utf-8") as f:
+            last_lines = deque(f, 20)
+
+        clean_logs = [line.strip() for line in last_lines]
+
+        return {
+            "filename": os.path.basename(log_file),
+            "logs": clean_logs
+        }
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Erreur lors de la lecture des logs : {str(e)}")
+
+
+@app.get("/logs/file")
+async def get_log_file():
+    if not os.path.exists(log_file):
+        raise HTTPException(status_code=404, detail="Aucun log disponible")
+
+    return FileResponse(
+        path=log_file,
+        filename="api_debug_full.log", # nom du fichier au téléchargement
+        media_type="text/plain"
     )
 
 
