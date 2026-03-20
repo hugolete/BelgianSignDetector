@@ -6,6 +6,7 @@ import cv2
 import torch
 import os
 from factorymlops.trainers.YOLOTraining import YOLOTraining
+from factorymlops.validators.YOLOValidator import YOLOValidator
 from fastapi import FastAPI, File, UploadFile, BackgroundTasks, HTTPException
 from fastapi.responses import JSONResponse, FileResponse
 import shutil
@@ -96,15 +97,15 @@ async def predict_video(background_tasks: BackgroundTasks, file: UploadFile = Fi
 
 
 @app.post("/training-model/{model_name}/")
-async def training_model(background_tasks: BackgroundTasks, nb_epochs:int,exp_name:str,batch_size:int,learning_rate:float,patience:int,dataset_name:str,model_name:str):
+async def training_model(background_tasks: BackgroundTasks, nb_epochs:int,exp_name:str,batch_size:int,learning_rate:float,patience:int,dataset_yaml_name:str,model_name:str):
     try:
         global status
 
-        if status == "TRAINING":
-            raise HTTPException(status_code=409, detail="Un entraînement est déjà en cours.")
+        if status != "IDLE":
+            raise HTTPException(status_code=409, detail="Le serveur est déja occupé")
 
         model_path = os.path.join(models_dir, model_name)
-        dataset_path = os.path.join(dataset_dir, dataset_name)
+        dataset_path = os.path.join(dataset_dir, dataset_yaml_name)
 
         def run_training():
             global status
@@ -142,6 +143,45 @@ async def training_model(background_tasks: BackgroundTasks, nb_epochs:int,exp_na
         #TODO logging
 
         return JSONResponse(status_code=202, content={"message": "Entraînement lancé en arrière-plan", "experiment": exp_name})
+    except Exception as e:
+        return JSONResponse(status_code=400, content={"error": str(e)})
+
+
+@app.post("/val-model/{model_name}")
+async def val_model(background_tasks: BackgroundTasks, model_name:str, dataset_yaml_name):
+    try:
+        global status
+
+        if status != "IDLE":
+            raise HTTPException(status_code=409, detail="Le serveur est déja occupé")
+
+        model_path = os.path.join(models_dir, model_name)
+        dataset_path = os.path.join(dataset_dir, dataset_yaml_name)
+
+        def run_eval():
+            global status
+            status = "VAL"
+
+            try:
+                validator = YOLOValidator()
+                timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
+                print("Démarrage de la validation")
+                metrics = validator.eval(model_path,dataset_path)
+
+                # sauvegarde des résultats (#TODO a tester)
+                with open(f"/app/data/results_eval_{timestamp}.json", "w") as f:
+                    json.dump(metrics, f)
+            except Exception as e:
+                print(f"Erreur durant l'entraînement : {str(e)}")
+            finally:
+                status = "IDLE"
+
+        background_tasks.add_task(run_eval)
+
+        # TODO logging
+
+        return JSONResponse(status_code=202,content={"message": "Validation lancée en arrière-plan"})
     except Exception as e:
         return JSONResponse(status_code=400, content={"error": str(e)})
 
