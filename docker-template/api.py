@@ -1,3 +1,4 @@
+import json
 import subprocess
 import zipfile
 from collections import deque
@@ -12,6 +13,7 @@ import uvicorn
 from ultralytics import YOLO
 from src.image_predict import shape_detection, get_crops, sign_detection, get_detected_signs, print_detections
 from src.video_predict import video_shape_detection
+from datetime import datetime
 
 
 app = FastAPI()
@@ -20,7 +22,7 @@ signDetector_path = "FinalModel.pt"
 dataset_dir = "/app/datasets/"
 models_dir = "/app/models/"
 log_file = "/app/api_log.log" #TODO dockerfile : lui faire écrire les logs dans ce fichier
-status = "IDLE" # TODO : gérer les changements de statut
+status = "IDLE"
 
 #chargement modèle
 if torch.cuda.is_available():
@@ -39,6 +41,9 @@ except Exception as e:
 @app.post("/predict/")
 async def predict_image(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
     try:
+        global status
+        status = "PREDICTING"
+
         # enregistrer l'image
         file_location = f"/tmp/{file.filename}"
 
@@ -55,6 +60,7 @@ async def predict_image(background_tasks: BackgroundTasks, file: UploadFile = Fi
 
         #nettoyer l'espace après l'inférence
         os.remove(file_location)
+        status = "IDLE"
 
         return JSONResponse(status_code=200, content={"detections": detected_signs})
     except Exception as e:
@@ -64,6 +70,10 @@ async def predict_image(background_tasks: BackgroundTasks, file: UploadFile = Fi
 @app.post("/video-predict/")
 async def predict_video(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
     try:
+        global status
+        status = "PREDICTING"
+
+        # enregistrer la vidéo
         file_location = f"/tmp/{file.filename}"
 
         with open(file_location, "wb") as buffer:
@@ -76,6 +86,10 @@ async def predict_video(background_tasks: BackgroundTasks, file: UploadFile = Fi
             if sign['conf'] > 0.40:
                 print(f"Panneau : {sign['label']} -> Position : {sign['position']} | Confiance: {sign['conf']} | Frame : {sign['frame']}")
 
+        # nettoyer l'espace après l'inférence
+        os.remove(file_location)
+        status = "IDLE"
+
         return JSONResponse(status_code=200, content={"detections": total_detected_signs})
     except Exception as e:
         return JSONResponse(status_code=400, content={"error": str(e)})
@@ -84,35 +98,56 @@ async def predict_video(background_tasks: BackgroundTasks, file: UploadFile = Fi
 @app.post("/training-model/{model_name}/")
 async def training_model(background_tasks: BackgroundTasks, nb_epochs:int,exp_name:str,batch_size:int,learning_rate:float,patience:int,dataset_name:str,model_name:str):
     try:
+        global status
+
+        if status == "TRAINING":
+            raise HTTPException(status_code=409, detail="Un entraînement est déjà en cours.")
+
         model_path = os.path.join(models_dir, model_name)
         dataset_path = os.path.join(dataset_dir, dataset_name)
-        background_tasks.add_task(load_mlflow)
 
-        trainer = YOLOTraining()
+        def run_training():
+            global status
+            status = "TRAINING"
 
-        results_training = trainer.train(
-            "0",
-            model_path,
-            nb_epochs,
-            640,
-            "http://127.0.0.1:5000",
-            exp_name,
-            dataset_path,
-            "../models/", #TODO timestamp
-            batch_size,
-            learning_rate,
-            patience
-        )
+            try:
+                trainer = YOLOTraining()
+                timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
+                print("Démarrage de l'entrainement")
+                results_training = trainer.train(
+                    "0",
+                    model_path,
+                    nb_epochs,
+                    640,
+                    "http://127.0.0.1:5000",
+                    exp_name,
+                    dataset_path,
+                    f"../models/{timestamp}",
+                    batch_size,
+                    learning_rate,
+                    patience
+                )
+
+                # sauvegarde des résultats (#TODO a tester)
+                with open(f"/app/data/results_{exp_name}.json", "w") as f:
+                    json.dump(results_training, f)
+            except Exception as e:
+                print(f"Erreur durant l'entraînement : {str(e)}")
+            finally:
+                status = "IDLE"
+
+        background_tasks.add_task(run_training)
 
         #TODO logging
 
-        return JSONResponse(status_code=200, content={"results_training": results_training})
+        return JSONResponse(status_code=202, content={"message": "Entraînement lancé en arrière-plan", "experiment": exp_name})
     except Exception as e:
         return JSONResponse(status_code=400, content={"error": str(e)})
 
 
 @app.post("/upload-dataset/")
-async def upload_dataset(background_tasks: BackgroundTasks, dataset: UploadFile = File(...)):
+async def upload_dataset(dataset: UploadFile = File(...)):
     if not dataset.filename.endswith(".zip"):
         raise HTTPException(status_code=400, detail="Seuls les fichiers .zip sont acceptés")
 
@@ -164,7 +199,7 @@ async def get_models():
 
 
 @app.delete("/datasets/{dataset_name}")
-async def delete_dataset(background_tasks: BackgroundTasks, dataset_name: str):
+async def delete_dataset(dataset_name: str):
     try:
         os.remove(os.path.join(dataset_dir, dataset_name))
 
@@ -174,7 +209,7 @@ async def delete_dataset(background_tasks: BackgroundTasks, dataset_name: str):
 
 
 @app.delete("/models/{model_name}")
-async def delete_model(background_tasks: BackgroundTasks, model_name: str):
+async def delete_model(model_name: str):
     try:
         os.remove(os.path.join(models_dir, model_name))
 
@@ -183,11 +218,8 @@ async def delete_model(background_tasks: BackgroundTasks, model_name: str):
         return JSONResponse(status_code=400, content={"error": str(e)})
 
 
-def load_mlflow():
-    subprocess.run("mlflow ui")
-
-
-def download_file(path:str):
+@app.get("/download-file/")
+async def download_file(path:str):
     if not os.path.exists(path):
         raise HTTPException(status_code=404, detail="Fichier non trouvé. Vérifiez le chemin")
 
@@ -202,8 +234,7 @@ def download_file(path:str):
 
 @app.get("/status/")
 async def get_status():
-    #TODO
-    pass
+    return JSONResponse(status_code=200, content={"status": status})
 
 
 @app.get("/logs/")
