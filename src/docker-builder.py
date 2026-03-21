@@ -25,7 +25,7 @@ if __name__ == '__main__':
     # lancement du container
     try:
         print("Lancement du container en cours")
-        container = client.containers.run("BelgianSignDetector", detach=True, ports={'5000/tcp': 5000, '8000/tcp': 8000})
+        container = client.containers.run("BelgianSignDetector", detach=True, ports={'5000/tcp': 5000, '8000/tcp': 8000},name="BelgianSignDetector-container")
         print("Conteneur lancé sur localhost:8000 !")
         print("Mlflow lancé sur localhost:5000 !")
 
