@@ -28,8 +28,10 @@ status = "IDLE"
 #chargement modèle
 if torch.cuda.is_available():
     device = torch.device("cuda:0")
+    print("Carte graphique trouvée et sélectionnée")
 else:
     device = torch.device("cpu")
+    print("Pas de carte graphique trouvée, CPU sélectionné")
 
 #logging
 logging.getLogger("ultralytics").setLevel(logging.INFO)
