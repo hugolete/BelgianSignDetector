@@ -1,5 +1,4 @@
 import json
-import subprocess
 import zipfile
 from collections import deque
 import cv2
@@ -15,6 +14,7 @@ from ultralytics import YOLO
 from src.image_predict import shape_detection, get_crops, sign_detection, get_detected_signs, print_detections
 from src.video_predict import video_shape_detection
 from datetime import datetime
+import logging
 
 
 app = FastAPI()
@@ -30,6 +30,9 @@ if torch.cuda.is_available():
     device = torch.device("cuda:0")
 else:
     device = torch.device("cpu")
+
+#logging
+logging.getLogger("ultralytics").setLevel(logging.INFO)
 
 try:
     shapeDetector_model = YOLO(os.path.join(models_dir, "ShapeDetector_Kaggle_Epoch20.pt"))
@@ -137,10 +140,9 @@ async def training_model(background_tasks: BackgroundTasks, nb_epochs:int,exp_na
                 print(f"Erreur durant l'entraînement : {str(e)}")
             finally:
                 status = "IDLE"
+                print(f"--- Fin entrainement ---")
 
         background_tasks.add_task(run_training)
-
-        #TODO logging
 
         return JSONResponse(status_code=202, content={"message": "Entraînement lancé en arrière-plan", "experiment": exp_name})
     except Exception as e:
@@ -158,7 +160,7 @@ async def val_model(background_tasks: BackgroundTasks, model_name:str, dataset_y
         model_path = os.path.join(models_dir, model_name)
         dataset_path = os.path.join(dataset_dir, dataset_yaml_name)
 
-        def run_eval():
+        def run_val():
             global status
             status = "VAL"
 
@@ -173,13 +175,12 @@ async def val_model(background_tasks: BackgroundTasks, model_name:str, dataset_y
                 with open(f"/app/data/results_eval_{timestamp}.json", "w") as f:
                     json.dump(metrics, f)
             except Exception as e:
-                print(f"Erreur durant l'entraînement : {str(e)}")
+                print(f"Erreur durant la validation : {str(e)}")
             finally:
                 status = "IDLE"
+                print(f"--- Fin validation ---")
 
-        background_tasks.add_task(run_eval)
-
-        # TODO logging
+        background_tasks.add_task(run_val)
 
         return JSONResponse(status_code=202,content={"message": "Validation lancée en arrière-plan"})
     except Exception as e:
