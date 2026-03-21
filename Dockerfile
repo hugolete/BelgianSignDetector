@@ -35,6 +35,7 @@ COPY ./src /app/src
 COPY ./utils /app/utils
 COPY ./docker-template/api.py /app
 COPY ./models /app/models
+COPY factory_mlops-0.0.1-py3-none-any.whl /app
 
 # expose le port 5000 (pour mlflow) et 8000 (pour l'api)
 EXPOSE 5000
