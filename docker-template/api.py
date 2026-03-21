@@ -22,7 +22,7 @@ shapeDetector_path = "ShapeDetector_Kaggle_Epoch20.pt"
 signDetector_path = "FinalModel.pt"
 dataset_dir = "/app/datasets/"
 models_dir = "/app/models/"
-log_file = "/app/api_log.log" #TODO dockerfile : lui faire écrire les logs dans ce fichier
+log_file = "/app/api_log.log"
 status = "IDLE"
 
 #chargement modèle
@@ -312,4 +312,4 @@ async def get_log_file():
 
 if __name__ == "__main__":
     print("Starting server")
-    uvicorn.run(app, host="0.0.0.0", port=5000)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
