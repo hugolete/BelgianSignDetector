@@ -1,15 +1,21 @@
 # Base image
-FROM nvidia/cuda:11.8.0-base-ubuntu20.04
+FROM nvidia/cuda:12.5.1-runtime-ubuntu24.04
 
 # Force Python à afficher les logs immédiatement
 ENV PYTHONUNBUFFERED=1
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Europe/Brussels
 
 # installation libs système
 RUN apt-get update && apt-get install -y \
+    python3 \
     python3-pip \
-    libgl1-mesa-glx \
+    libgl1 \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
+
+# Créer un lien pour que 'python' pointe vers 'python3'
+RUN ln -s /usr/bin/python3 /usr/bin/python
 
 # Set working directory
 WORKDIR /app
@@ -17,10 +23,9 @@ WORKDIR /app
 # installation dépendance
 COPY docker-requirements.txt .
 
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r docker-requirements.txt && \
-    pip install --no-cache-dir torch==2.7.1+cu118 torchvision==0.22.1+cu118 \
-    --index-url https://download.pytorch.org/whl/cu118
+RUN pip install --no-cache-dir torch==2.6.0+cu124 torchvision==0.21.0+cu124 \
+    --index-url https://download.pytorch.org/whl/cu124 --break-system-packages && \
+    pip install --no-cache-dir -r docker-requirements.txt --break-system-packages
 
 # création des dossiers nécessaires avant de copier le code
 RUN mkdir -p /app/datasets /app/data
