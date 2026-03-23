@@ -32,9 +32,12 @@ if __name__ == '__main__':
     try:
         print("Lancement du container en cours")
         container = client.containers.run("belgian-sign-detector", detach=True, ports={'5000/tcp': 5000, '8000/tcp': 8000},name="belgian-sign-detector-container")
-        print("Conteneur lancé sur localhost:8000 !")
-        print("Mlflow lancé sur localhost:5000 !")
+        print("L'API sera lancée sur localhost:8000 !")
+        print("Mlflow sera lancé sur localhost:5000 !")
 
-        container.logs()
+        print("--- Logs du conteneur ---")
+        for line in container.logs(stream=True):
+            print(line.decode('utf-8').strip())
+
     except Exception as e:
         print("Erreur lors du lancement du container : ",e)
