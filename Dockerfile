@@ -45,4 +45,4 @@ EXPOSE 5000
 EXPOSE 8000
 
 # Run the FastAPI application
-CMD ["/bin/bash", "-c", "python3 api.py 2>&1 | tee -a /app/api_log.log"]
+CMD ["/bin/bash", "-c", "mlflow ui --host 0.0.0.0 --port 5000 & python3 api.py 2>&1 | tee -a /app/api_log.log"]
