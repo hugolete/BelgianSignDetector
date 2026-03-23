@@ -23,6 +23,10 @@ WORKDIR /app
 # installation dépendance
 COPY docker-requirements.txt .
 
+# outil perso
+COPY factory_mlops-0.0.1-py3-none-any.whl .
+RUN pip install --no-cache-dir ./factory_mlops-0.0.1-py3-none-any.whl --break-system-packages
+
 RUN pip install --no-cache-dir torch==2.6.0+cu124 torchvision==0.21.0+cu124 \
     --index-url https://download.pytorch.org/whl/cu124 --break-system-packages && \
     pip install --no-cache-dir -r docker-requirements.txt --break-system-packages
@@ -35,10 +39,6 @@ COPY ./src /app/src
 COPY ./utils /app/utils
 COPY ./docker-template/api.py /app
 COPY ./models /app/models
-
-# outil perso
-COPY factory_mlops-0.0.1-py3-none-any.whl /app
-RUN pip install --no-cache-dir /app/factory_mlops-0.0.1-py3-none-any.whl
 
 # expose le port 5000 (pour mlflow) et 8000 (pour l'api)
 EXPOSE 5000

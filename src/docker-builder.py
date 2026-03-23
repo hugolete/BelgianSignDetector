@@ -6,6 +6,7 @@ import os
 if __name__ == '__main__':
     load_dotenv()
     print("Initialisation client docker")
+    root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
     try:
         client = docker.DockerClient(base_url=os.getenv("DOCKER_URL"))
@@ -15,9 +16,10 @@ if __name__ == '__main__':
 
     try:
         print("Build en cours :")
+        print(f"Contexte : {root_path}")
 
         #logs
-        for line in client.api.build(path="../", tag="belgian-sign-detector", rm=True, decode=True):
+        for line in client.api.build(path=root_path, tag="belgian-sign-detector", rm=True, decode=True):
             if 'stream' in line:
                 print(line['stream'].strip())
             elif 'error' in line:
@@ -31,7 +33,7 @@ if __name__ == '__main__':
     # lancement du container
     try:
         print("Lancement du container en cours")
-        container = client.containers.run("belgian-sign-detector", detach=True, ports={'5000/tcp': 5000, '8000/tcp': 8000},name="belgian-sign-detector-container")
+        container = client.containers.run("belgian-sign-detector", detach=True,device_requests=[docker.types.DeviceRequest(count=-1, capabilities=[['gpu']])], ports={'5000/tcp': 5000, '8000/tcp': 8000},name="belgian-sign-detector-container")
         print("L'API sera lancée sur localhost:8000 !")
         print("Mlflow sera lancé sur localhost:5000 !")
 
