@@ -102,7 +102,7 @@ async def predict_video(background_tasks: BackgroundTasks, file: UploadFile = Fi
 
 
 @app.post("/training-model/{model_name}/")
-async def training_model(background_tasks: BackgroundTasks, nb_epochs:int = Form(...),exp_name:str = Form(...),batch_size:int = Form(...),learning_rate:float = Form(...),patience:int = Form(...),dataset_yaml_name:str = Form(...),model_name:str = Form(...)):
+async def training_model(background_tasks: BackgroundTasks,model_name:str, nb_epochs:int = Form(...),exp_name:str = Form(...),batch_size:int = Form(...),learning_rate:float = Form(...),patience:int = Form(...),dataset_yaml_name:str = Form(...)):
     try:
         global status
 
@@ -152,7 +152,7 @@ async def training_model(background_tasks: BackgroundTasks, nb_epochs:int = Form
 
 
 @app.post("/val-model/{model_name}")
-async def val_model(background_tasks: BackgroundTasks, model_name:str = Form(...), dataset_yaml_name:str = Form(...)):
+async def val_model(background_tasks: BackgroundTasks, model_name:str, dataset_yaml_name:str = Form(...)):
     try:
         global status
 
