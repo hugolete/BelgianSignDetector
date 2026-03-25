@@ -10,6 +10,7 @@ from fastapi import FastAPI, File, UploadFile, BackgroundTasks, HTTPException, F
 from fastapi.responses import JSONResponse, FileResponse
 import shutil
 import uvicorn
+from starlette.responses import StreamingResponse
 from ultralytics import YOLO
 from src.image_predict import shape_detection, get_crops, sign_detection, get_detected_signs, print_detections
 from src.video_predict import video_shape_detection
@@ -209,6 +210,8 @@ async def upload_dataset(dataset: UploadFile = File(...)):
         with zipfile.ZipFile(zip_path, 'r') as zip_ref:
             zip_ref.extractall(extract_folder)
 
+        os.remove(zip_path)
+
         return JSONResponse(status_code=200, content={"dataset_name": nom_dataset})
     except Exception as e:
         return JSONResponse(status_code=400, content={"error": str(e)})
@@ -327,10 +330,21 @@ async def get_log_file():
     if not os.path.exists(log_file):
         raise HTTPException(status_code=404, detail="Aucun log disponible")
 
-    return FileResponse(
+    """return FileResponse(
         path=log_file,
         filename="api_debug_full.log", # nom du fichier au téléchargement
         media_type="text/plain"
+    )"""
+
+    def iterfile():
+        # On ouvre en mode binaire pour le stream
+        with open(log_file, mode="rb") as f:
+            yield from f
+
+    return StreamingResponse(
+        iterfile(),
+        media_type="text/plain",
+        headers={"Content-Disposition": "attachment; filename=api_debug_full.log"}
     )
 
 
