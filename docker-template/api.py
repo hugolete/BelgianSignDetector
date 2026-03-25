@@ -221,18 +221,11 @@ async def upload_dataset(dataset: UploadFile = File(...)):
 async def upload_model(model : UploadFile = File(...)):
     nom_fichier = model.filename
     nom_modele = os.path.splitext(nom_fichier)[0]
-    zip_path = os.path.join(models_dir, nom_fichier)
-    extract_folder = os.path.join(models_dir, nom_modele)
+    model_path = os.path.join(models_dir, nom_fichier)
 
     try:
-        with open(zip_path, "wb") as buffer:
+        with open(model_path, "wb") as buffer:
             shutil.copyfileobj(model.file, buffer)
-
-        if not os.path.exists(extract_folder):
-            os.makedirs(extract_folder)
-
-        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-            zip_ref.extractall(extract_folder)
 
         return JSONResponse(status_code=200, content={"model_name": nom_modele})
     except Exception as e:
@@ -269,7 +262,7 @@ async def get_models():
 @app.delete("/datasets/{dataset_name}")
 async def delete_dataset(dataset_name: str):
     try:
-        os.remove(os.path.join(dataset_dir, dataset_name))
+        os.rmdir(os.path.join(dataset_dir, dataset_name))
 
         return JSONResponse(status_code=200, content={"dataset_name": dataset_name})
     except Exception as e:
