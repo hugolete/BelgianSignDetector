@@ -6,7 +6,7 @@ import torch
 import os
 from factorymlops.trainers.YOLOTraining import YOLOTraining
 from factorymlops.validators.YOLOValidator import YOLOValidator
-from fastapi import FastAPI, File, UploadFile, BackgroundTasks, HTTPException
+from fastapi import FastAPI, File, UploadFile, BackgroundTasks, HTTPException, Form
 from fastapi.responses import JSONResponse, FileResponse
 import shutil
 import uvicorn
@@ -102,7 +102,7 @@ async def predict_video(background_tasks: BackgroundTasks, file: UploadFile = Fi
 
 
 @app.post("/training-model/{model_name}/")
-async def training_model(background_tasks: BackgroundTasks, nb_epochs:int,exp_name:str,batch_size:int,learning_rate:float,patience:int,dataset_yaml_name:str,model_name:str):
+async def training_model(background_tasks: BackgroundTasks, nb_epochs:int = Form(...),exp_name:str = Form(...),batch_size:int = Form(...),learning_rate:float = Form(...),patience:int = Form(...),dataset_yaml_name:str = Form(...),model_name:str = Form(...)):
     try:
         global status
 
@@ -152,7 +152,7 @@ async def training_model(background_tasks: BackgroundTasks, nb_epochs:int,exp_na
 
 
 @app.post("/val-model/{model_name}")
-async def val_model(background_tasks: BackgroundTasks, model_name:str, dataset_yaml_name):
+async def val_model(background_tasks: BackgroundTasks, model_name:str = Form(...), dataset_yaml_name:str = Form(...)):
     try:
         global status
 
