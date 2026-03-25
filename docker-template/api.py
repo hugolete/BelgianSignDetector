@@ -214,6 +214,28 @@ async def upload_dataset(dataset: UploadFile = File(...)):
         return JSONResponse(status_code=400, content={"error": str(e)})
 
 
+@app.post("/upload-model/")
+async def upload_model(model : UploadFile = File(...)):
+    nom_fichier = model.filename
+    nom_modele = os.path.splitext(nom_fichier)[0]
+    zip_path = os.path.join(models_dir, nom_fichier)
+    extract_folder = os.path.join(models_dir, nom_modele)
+
+    try:
+        with open(zip_path, "wb") as buffer:
+            shutil.copyfileobj(model.file, buffer)
+
+        if not os.path.exists(extract_folder):
+            os.makedirs(extract_folder)
+
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall(extract_folder)
+
+        return JSONResponse(status_code=200, content={"model_name": nom_modele})
+    except Exception as e:
+        return JSONResponse(status_code=400, content={"error": str(e)})
+
+
 @app.get("/datasets/")
 async def get_datasets():
     response = []
@@ -262,7 +284,7 @@ async def delete_model(model_name: str):
 
 
 @app.get("/download-file/")
-async def download_file(path:str):
+async def download_file(path:str = Form(...)):
     if not os.path.exists(path):
         raise HTTPException(status_code=404, detail="Fichier non trouvé. Vérifiez le chemin")
 
