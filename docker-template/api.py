@@ -112,6 +112,7 @@ async def training_model(background_tasks: BackgroundTasks,model_name:str, nb_ep
 
         model_path = os.path.join(models_dir, model_name)
         dataset_path = os.path.join(dataset_dir, dataset_yaml_name)
+        dataset_yaml_path = os.path.join(dataset_path, dataset_yaml_name + ".yaml")
 
         def run_training():
             global status
@@ -129,7 +130,7 @@ async def training_model(background_tasks: BackgroundTasks,model_name:str, nb_ep
                     640,
                     "http://127.0.0.1:5000",
                     exp_name,
-                    dataset_path,
+                    dataset_yaml_path,
                     f"../models/{timestamp}",
                     batch_size,
                     learning_rate,
