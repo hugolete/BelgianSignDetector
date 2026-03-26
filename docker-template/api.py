@@ -19,8 +19,8 @@ import logging
 
 
 app = FastAPI()
-shapeDetector_path = "ShapeDetector_Kaggle_Epoch20.pt"
-signDetector_path = "FinalModel.pt"
+shapeDetector_path = "/app/models/ShapeDetector_Kaggle_Epoch20.pt"
+signDetector_path = "/app/models/FinalModel.pt"
 dataset_dir = "/app/datasets/"
 models_dir = "/app/models/"
 log_file = "/app/api_log.log"
@@ -86,7 +86,7 @@ async def predict_video(background_tasks: BackgroundTasks, file: UploadFile = Fi
         with open(file_location, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
-        total_detected_signs = video_shape_detection(shapeDetector_path, file_location,test=True)
+        total_detected_signs = video_shape_detection(shapeDetector_path, signDetector_path,file_location,test=True)
 
         print("Panneaux détectés sur la vidéo : ")
         for sign in total_detected_signs:
@@ -160,6 +160,7 @@ async def val_model(background_tasks: BackgroundTasks, model_name:str, dataset_y
         if status != "IDLE":
             raise HTTPException(status_code=409, detail="Le serveur est déja occupé")
 
+        model_name = model_name+".pt"
         model_path = os.path.join(models_dir, model_name)
         dataset_path = os.path.join(dataset_dir, dataset_yaml_name)
 
@@ -262,7 +263,7 @@ async def get_models():
 @app.delete("/datasets/{dataset_name}")
 async def delete_dataset(dataset_name: str):
     try:
-        os.rmdir(os.path.join(dataset_dir, dataset_name))
+        shutil.rmtree(os.path.join(dataset_dir, dataset_name), ignore_errors=True)
 
         return JSONResponse(status_code=200, content={"dataset_name": dataset_name})
     except Exception as e:
@@ -291,6 +292,20 @@ async def download_file(path:str = Form(...)):
         filename=filename,
         media_type='application/octet-stream'
     )
+
+
+@app.post("/upload-file")
+async def upload_file(file: UploadFile = File(...)):
+    path = "/app"
+    nom_fichier = file.filename
+
+    try:
+        with open(path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+
+        return JSONResponse(status_code=200, content={"file_name": nom_fichier})
+    except Exception as e:
+        return JSONResponse(status_code=400, content={"error": str(e)})
 
 
 @app.get("/status/")

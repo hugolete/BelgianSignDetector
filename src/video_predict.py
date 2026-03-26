@@ -1,10 +1,9 @@
 from ultralytics import YOLO
 import cv2
 from src.image_predict import sign_detection, get_detected_signs, print_detections
-import time, os
 
 
-def video_shape_detection(shapeDetector_path:str,video_path:str,test:bool=False):
+def video_shape_detection(shapeDetector_path:str,signDetector_path:str,video_path:str,test:bool=False):
     shapeDetector = YOLO(shapeDetector_path)
     detected_ids = set()
     max_detections_per_sec = 7
@@ -94,7 +93,7 @@ def video_shape_detection(shapeDetector_path:str,video_path:str,test:bool=False)
                     cv2.waitKey(0)"""
 
                 # détection sur image cropée & affichage console
-                cropped_signs = sign_detection("../models/FinalModel.pt",crops_list)
+                cropped_signs = sign_detection(signDetector_path,crops_list)
                 if cropped_signs:
                     detected_signs = get_detected_signs(cropped_signs)
                     print_detections(detected_signs,0.40)
@@ -102,14 +101,15 @@ def video_shape_detection(shapeDetector_path:str,video_path:str,test:bool=False)
                     for label, detections in detected_signs.items():
                         for d in detections:
                             if not is_duplicate(d['box'],frame_count,total_detected_signs,label_to_check=label):
-                                total_detected_signs.append({
-                                    "label": label,
-                                    "position": d['box'],
-                                    "conf":d['confidence'],
-                                    "frame":frame_count
-                                })
+                                if d['confidence'] > 0.40:
+                                    total_detected_signs.append({
+                                        "label": label,
+                                        "position": d['box'],
+                                        "conf": d['confidence'],
+                                        "frame": frame_count
+                                    })
                             else:
-                                print(f"p Double détecté pour {label}, ignoré.")
+                                print(f"Double détecté pour {label}, ignoré.")
 
             #test
             """annotated_frame = results[0].plot()

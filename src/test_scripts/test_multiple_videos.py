@@ -4,18 +4,21 @@ import os
 
 if __name__ == "__main__":
     shapeDetector_path = "../../models/ShapeDetector_Kaggle_Epoch20.pt"
+    signDetector_path = "../../models/FinalModel.pt"
     video_paths = [
         "../../datasets/archive/traffic-sign-to-test.mp4",
         "../../datasets/video1_nuit.mp4",
-        "../../datasets/video2.mp4",
-        "../../datasets/video3.mp4",
-        "../../datasets/video4.mp4",
-        "../../datasets/video5.mp4",
     ]
+    """
+    "../../datasets/video2.mp4",
+    "../../datasets/video3.mp4",
+    "../../datasets/video4.mp4",
+    "../../datasets/video5.mp4",
+    """
 
     for video_path in video_paths:
         print("Vidéo : ", video_path)
-        total_detected_signs = video_shape_detection(shapeDetector_path,video_path,test=True)
+        total_detected_signs = video_shape_detection(shapeDetector_path,signDetector_path,video_path,test=True)
 
         with open(f"detections.txt", "a") as f:
             f.write(f"Video : {os.path.basename(video_path).split('/')[-1]}\n")
