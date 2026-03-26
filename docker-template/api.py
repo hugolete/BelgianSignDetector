@@ -121,6 +121,7 @@ async def training_model(background_tasks: BackgroundTasks,model_name:str, nb_ep
             try:
                 trainer = YOLOTraining()
                 timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+                os.makedirs(f"../models/{timestamp}", exist_ok=True)
 
                 print("Démarrage de l'entrainement")
                 results_training = trainer.train(
