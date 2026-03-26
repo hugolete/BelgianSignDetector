@@ -33,7 +33,7 @@ if __name__ == '__main__':
     # lancement du container
     try:
         print("Lancement du container en cours")
-        container = client.containers.run("belgian-sign-detector", detach=True,device_requests=[docker.types.DeviceRequest(count=-1, capabilities=[['gpu']])], ports={'5000/tcp': 5000, '8000/tcp': 8000},name="belgian-sign-detector-container")
+        container = client.containers.run("belgian-sign-detector", detach=True,device_requests=[docker.types.DeviceRequest(count=-1, capabilities=[['gpu']])], ports={'5000/tcp': 5000, '8000/tcp': 8000},name="belgian-sign-detector-container",ipc_mode="host")
         print("L'API sera lancée sur localhost:8000 !")
         print("Mlflow sera lancé sur localhost:5000 !") #TODO ne fonctionne pas encore
 
