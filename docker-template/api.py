@@ -161,8 +161,13 @@ async def val_model(background_tasks: BackgroundTasks, model_name:str, dataset_y
             raise HTTPException(status_code=409, detail="Le serveur est déja occupé")
 
         model_name = model_name+".pt"
+        print(model_name)
         model_path = os.path.join(models_dir, model_name)
         dataset_path = os.path.join(dataset_dir, dataset_yaml_name)
+        dataset_yaml_path = os.path.join(dataset_path, dataset_yaml_name+".yaml")
+
+        if not os.path.exists(dataset_yaml_path):
+            return JSONResponse(status_code=400, content={"error": f"{dataset_yaml_path} non trouvé"})
 
         def run_val():
             global status
@@ -173,22 +178,29 @@ async def val_model(background_tasks: BackgroundTasks, model_name:str, dataset_y
                 timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
                 print("Démarrage de la validation")
-                metrics = validator.eval(model_path,dataset_path)
+                print(model_path)
+                metrics = validator.eval(model_path,dataset_yaml_path)
 
                 # sauvegarde des résultats (#TODO a tester)
+                print("Sauvegarde des résultats")
                 with open(f"/app/data/results_eval_{timestamp}.json", "w") as f:
                     json.dump(metrics, f)
             except Exception as e:
                 print(f"Erreur durant la validation : {str(e)}")
             finally:
                 status = "IDLE"
-                print(f"--- Fin validation ---")
+                print("Fin validation")
 
         background_tasks.add_task(run_val)
 
         return JSONResponse(status_code=202,content={"message": "Validation lancée en arrière-plan"})
     except Exception as e:
         return JSONResponse(status_code=400, content={"error": str(e)})
+
+
+"""@app.get("/last-val-results")
+async def get_val_results():"""
+
 
 
 @app.post("/upload-dataset/")

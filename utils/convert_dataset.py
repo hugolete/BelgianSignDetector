@@ -71,5 +71,5 @@ def convert_folder_to_yolo(csv_path,folder_path,output_image_path,output_label_p
 
 
 if __name__ == "__main__":
-    convert_dataset_to_yolo("../datasets/BelgiumTSC_Training/Training", "../datasets/BelgiumTSC_Training_YOLO/images", "../datasets/BelgiumTSC_Training_YOLO/labels")
-    convert_dataset_to_yolo("../datasets/BelgiumTSC_Testing/Testing", "../datasets/BelgiumTSC_Testing_YOLO/images", "../datasets/BelgiumTSC_Testing_YOLO/labels")
+    convert_dataset_to_yolo("../datasets/BelgiumTSC_Training/Training", "../datasets/BelgiumTSC/images/train", "../datasets/BelgiumTSC/labels/train")
+    convert_dataset_to_yolo("../datasets/BelgiumTSC_Testing/Testing", "../datasets/BelgiumTSC/images/val", "../datasets/BelgiumTSC/labels/val")
