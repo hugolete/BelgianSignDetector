@@ -130,7 +130,7 @@ async def training_model(background_tasks: BackgroundTasks,model_name:str, nb_ep
                     "http://127.0.0.1:5000",
                     exp_name,
                     dataset_yaml_path,
-                    f"../models/",
+                    f"models/",
                     batch_size,
                     learning_rate,
                     patience
@@ -138,7 +138,7 @@ async def training_model(background_tasks: BackgroundTasks,model_name:str, nb_ep
 
                 # sauvegarde des résultats
                 with open(f"/app/data/results_{exp_name}.json", "w") as f:
-                    json.dump(results_training.result_dict, f)
+                    json.dump(results_training.metrics, f)
 
                 print("Modèle entrainé, /models/model.pt")
             except Exception as e:

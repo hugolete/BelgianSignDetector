@@ -2,9 +2,7 @@
 FROM nvidia/cuda:12.5.1-runtime-ubuntu24.04
 
 # Force Python à afficher les logs immédiatement
-ENV PYTHONUNBUFFERED=1
-ENV DEBIAN_FRONTEND=noninteractive
-ENV TZ=Europe/Brussels
+ENV PYTHONUNBUFFERED=1 DEBIAN_FRONTEND=noninteractive TZ=Europe/Brussels
 
 # installation libs système
 RUN apt-get update && apt-get install -y \
@@ -41,8 +39,7 @@ COPY ./docker-template/api.py /app
 COPY ./models /app/models
 
 # expose le port 5000 (pour mlflow) et 8000 (pour l'api)
-EXPOSE 5000
-EXPOSE 8000
+EXPOSE 5000 8000
 
 # Run the FastAPI application
 CMD ["/bin/bash", "-c", "mlflow ui --host 0.0.0.0 --port 5000 & python3 api.py 2>&1 | tee -a /app/api_log.log"]
