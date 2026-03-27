@@ -36,7 +36,7 @@ try:
             print("Le container tourne déjà.")
     except docker.errors.NotFound:
         print(f"Le container belgian-sign-detector-container n'existe pas. Création...")
-        container = client.containers.run("belgian-sign-detector", detach=True,device_requests=[docker.types.DeviceRequest(count=-1, capabilities=[['gpu']])], ports={'5000/tcp': 5000, '8000/tcp': 8000},name="belgian-sign-detector-container")
+        container = client.containers.run("belgian-sign-detector", detach=True,device_requests=[docker.types.DeviceRequest(count=-1, capabilities=[['gpu']])], ports={'5000/tcp': 5000, '8000/tcp': 8000},name="belgian-sign-detector-container",ipc_mode="host")
         print("Nouveau container créé et démarré.")
         print("L'API sera lancée sur localhost:8000 !")
         print("Mlflow sera lancé sur localhost:5000 !")

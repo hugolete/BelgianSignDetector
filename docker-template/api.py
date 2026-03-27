@@ -120,8 +120,6 @@ async def training_model(background_tasks: BackgroundTasks,model_name:str, nb_ep
 
             try:
                 trainer = YOLOTraining()
-                timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-                os.makedirs(f"../models/{timestamp}", exist_ok=True)
 
                 print("Démarrage de l'entrainement")
                 results_training = trainer.train(
@@ -132,15 +130,17 @@ async def training_model(background_tasks: BackgroundTasks,model_name:str, nb_ep
                     "http://127.0.0.1:5000",
                     exp_name,
                     dataset_yaml_path,
-                    f"../models/{timestamp}",
+                    f"../models/",
                     batch_size,
                     learning_rate,
                     patience
                 )
 
-                # sauvegarde des résultats (#TODO a tester)
+                # sauvegarde des résultats
                 with open(f"/app/data/results_{exp_name}.json", "w") as f:
-                    json.dump(results_training, f)
+                    json.dump(results_training.result_dict, f)
+
+                print("Modèle entrainé, /models/model.pt")
             except Exception as e:
                 print(f"Erreur durant l'entraînement : {str(e)}")
             finally:
