@@ -46,7 +46,7 @@ except Exception as e:
 
 
 @app.post("/predict/")
-async def predict_image(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
+async def predict_image(file: UploadFile = File(...)):
     try:
         global status
         status = "PREDICTING"
@@ -75,7 +75,7 @@ async def predict_image(background_tasks: BackgroundTasks, file: UploadFile = Fi
 
 
 @app.post("/video-predict/")
-async def predict_video(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
+async def predict_video(file: UploadFile = File(...)):
     try:
         global status
         status = "PREDICTING"
@@ -186,7 +186,7 @@ async def val_model(background_tasks: BackgroundTasks, model_name:str, dataset_y
                 print(model_path)
                 metrics = validator.eval(model_path,dataset_yaml_path)
 
-                # sauvegarde des résultats (#TODO a tester)
+                # sauvegarde des résultats
                 print("Sauvegarde des résultats")
                 with open(f"/app/data/results_eval_{timestamp}.json", "w") as f:
                     json.dump(metrics, f)
@@ -201,11 +201,6 @@ async def val_model(background_tasks: BackgroundTasks, model_name:str, dataset_y
         return JSONResponse(status_code=202,content={"message": "Validation lancée en arrière-plan"})
     except Exception as e:
         return JSONResponse(status_code=400, content={"error": str(e)})
-
-
-"""@app.get("/last-val-results")
-async def get_val_results():"""
-
 
 
 @app.post("/upload-dataset/")
@@ -354,12 +349,6 @@ async def get_logs():
 async def get_log_file():
     if not os.path.exists(log_file):
         raise HTTPException(status_code=404, detail="Aucun log disponible")
-
-    """return FileResponse(
-        path=log_file,
-        filename="api_debug_full.log", # nom du fichier au téléchargement
-        media_type="text/plain"
-    )"""
 
     def iterfile():
         # On ouvre en mode binaire pour le stream
