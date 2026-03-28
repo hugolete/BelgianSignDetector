@@ -138,7 +138,10 @@ async def training_model(background_tasks: BackgroundTasks,model_name:str, nb_ep
 
                 # sauvegarde des résultats
                 with open(f"/app/data/results_{exp_name}.json", "w") as f:
-                    json.dump(results_training.metrics, f)
+                    try:
+                        json.dump(results_training.results_dict, f)
+                    except Exception as e:
+                        print(f"Erreur durant la sauvegarde des résultats (results_dict) : {str(e)}")
 
                 print("Modèle entrainé, /models/model.pt")
             except Exception as e:
