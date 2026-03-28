@@ -177,8 +177,9 @@ def is_duplicate(new_coords,new_frame,sign_list,pos_threshold=60,frame_threshold
 
 if __name__ == '__main__':
     shapeDetector_path = "../models/ShapeDetector_Kaggle_Epoch20.pt"
+    signDetector_path = "../models/FinalModel.pt"
     video_path = "../datasets/archive/traffic-sign-to-test.mp4"
     video_path2 = "../datasets/video1_nuit.mp4"
     video_path3 = "../datasets/video2.mp4"
 
-    video_shape_detection(shapeDetector_path, video_path3)
+    video_shape_detection(shapeDetector_path, signDetector_path, video_path3)

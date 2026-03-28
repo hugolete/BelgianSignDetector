@@ -1,15 +1,18 @@
 from factorymlops.trainers.YOLOTraining import YOLOTraining
+import os
+
 
 if __name__ == '__main__':
-    model_path = str(input("Chemin du modèle"))
-    dataset_path = str(input("Chemin du YAML du dataset"))
-    nb_epochs = int(input("Nombre d'epochs"))
-    exp_name = str(input("Nom expérience"))
+    os.makedirs("models", exist_ok=True)
+    model_path = str(input("Model path"))
+    dataset_path = str(input("Dataset YAML's path"))
+    nb_epochs = int(input("How many epochs ?"))
+    exp_name = str(input("Experience name"))
     batch_size = int(input("Batch size")) # 4 ou 8
     learning_rate = float(input("Learning rate")) # 0.0025 si 4, 0.005 si 8
-    patience = int(input("Patience (nb d'epochs sans amélioration avant arrêt)"))
+    patience = int(input("Patience (amount of epochs without upgrade before stopping)"))
 
-    choix = int(input("Avec augmentation ? 0 pour non, 1 pour oui"))
+    choix = int(input("With augmentation ? 0 for No, 1 for Yes"))
 
     if choix == 1:
         scale = float(input("Scaling factor")) # 0.1
