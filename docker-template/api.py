@@ -29,10 +29,10 @@ status = "IDLE"
 #chargement modèle
 if torch.cuda.is_available():
     device = torch.device("cuda:0")
-    print("Carte graphique trouvée et sélectionnée")
+    print("GPU found and selected")
 else:
     device = torch.device("cpu")
-    print("Pas de carte graphique trouvée, CPU sélectionné")
+    print("No GPU found, CPU selected")
 
 #logging
 logging.getLogger("ultralytics").setLevel(logging.INFO)
@@ -40,9 +40,9 @@ logging.getLogger("ultralytics").setLevel(logging.INFO)
 try:
     shapeDetector_model = YOLO(os.path.join(models_dir, "ShapeDetector.pt"))
     sign_model = YOLO(os.path.join(models_dir, "SignDetector.pt"))
-    print("Modèles chargés !")
+    print("Models loaded !")
 except Exception as e:
-    raise ValueError("Erreur lors du chargement des modèles")
+    raise ValueError("Error while loading models")
 
 
 @app.post("/predict/")
@@ -88,10 +88,10 @@ async def predict_video(file: UploadFile = File(...)):
 
         total_detected_signs = video_shape_detection(shapeDetector_path, signDetector_path,file_location,test=True)
 
-        print("Panneaux détectés sur la vidéo : ")
+        print("Signs detected on the video : ")
         for sign in total_detected_signs:
             if sign['conf'] > 0.40:
-                print(f"Panneau : {sign['label']} -> Position : {sign['position']} | Confiance: {sign['conf']} | Frame : {sign['frame']}")
+                print(f"Sign : {sign['label']} -> Position : {sign['position']} | Confidence: {sign['conf']} | Frame : {sign['frame']}")
 
         # nettoyer l'espace après l'inférence
         os.remove(file_location)
@@ -108,7 +108,7 @@ async def training_model(background_tasks: BackgroundTasks,model_name:str, nb_ep
         global status
 
         if status != "IDLE":
-            raise HTTPException(status_code=409, detail="Le serveur est déja occupé")
+            raise HTTPException(status_code=409, detail="Server is busy")
 
         model_path = os.path.join(models_dir, model_name)
         dataset_path = os.path.join(dataset_dir, dataset_yaml_name)
@@ -121,7 +121,7 @@ async def training_model(background_tasks: BackgroundTasks,model_name:str, nb_ep
             try:
                 trainer = YOLOTraining()
 
-                print("Démarrage de l'entrainement")
+                print("Starting training")
                 results_training = trainer.train(
                     "0",
                     model_path,
@@ -141,18 +141,18 @@ async def training_model(background_tasks: BackgroundTasks,model_name:str, nb_ep
                     try:
                         json.dump(results_training.results_dict, f)
                     except Exception as e:
-                        print(f"Erreur durant la sauvegarde des résultats (results_dict) : {str(e)}")
+                        print(f"Error while saving results : {str(e)}")
 
-                print("Modèle entrainé, /models/model.pt")
+                print("Model trained, /models/model.pt")
             except Exception as e:
-                print(f"Erreur durant l'entraînement : {str(e)}")
+                print(f"Error during training : {str(e)}")
             finally:
                 status = "IDLE"
-                print(f"--- Fin entrainement ---")
+                print(f"--- End of training ---")
 
         background_tasks.add_task(run_training)
 
-        return JSONResponse(status_code=202, content={"message": "Entraînement lancé en arrière-plan", "experiment": exp_name})
+        return JSONResponse(status_code=202, content={"message": "Training started", "experiment": exp_name})
     except Exception as e:
         return JSONResponse(status_code=400, content={"error": str(e)})
 
@@ -163,7 +163,7 @@ async def val_model(background_tasks: BackgroundTasks, model_name:str, dataset_y
         global status
 
         if status != "IDLE":
-            raise HTTPException(status_code=409, detail="Le serveur est déja occupé")
+            raise HTTPException(status_code=409, detail="Server is busy")
 
         model_name = model_name+".pt"
         print(model_name)
@@ -172,7 +172,7 @@ async def val_model(background_tasks: BackgroundTasks, model_name:str, dataset_y
         dataset_yaml_path = os.path.join(dataset_path, dataset_yaml_name+".yaml")
 
         if not os.path.exists(dataset_yaml_path):
-            return JSONResponse(status_code=400, content={"error": f"{dataset_yaml_path} non trouvé"})
+            return JSONResponse(status_code=400, content={"error": f"{dataset_yaml_path} not found"})
 
         def run_val():
             global status
@@ -182,23 +182,23 @@ async def val_model(background_tasks: BackgroundTasks, model_name:str, dataset_y
                 validator = YOLOValidator()
                 timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
-                print("Démarrage de la validation")
+                print("Starting validation")
                 print(model_path)
                 metrics = validator.eval(model_path,dataset_yaml_path)
 
                 # sauvegarde des résultats
-                print("Sauvegarde des résultats")
+                print("Saving results")
                 with open(f"/app/data/results_eval_{timestamp}.json", "w") as f:
                     json.dump(metrics, f)
             except Exception as e:
-                print(f"Erreur durant la validation : {str(e)}")
+                print(f"Error during validation : {str(e)}")
             finally:
                 status = "IDLE"
-                print("Fin validation")
+                print("End of validation")
 
         background_tasks.add_task(run_val)
 
-        return JSONResponse(status_code=202,content={"message": "Validation lancée en arrière-plan"})
+        return JSONResponse(status_code=202,content={"message": "Validation started"})
     except Exception as e:
         return JSONResponse(status_code=400, content={"error": str(e)})
 
@@ -206,7 +206,7 @@ async def val_model(background_tasks: BackgroundTasks, model_name:str, dataset_y
 @app.post("/upload-dataset/")
 async def upload_dataset(dataset: UploadFile = File(...)):
     if not dataset.filename.endswith(".zip"):
-        raise HTTPException(status_code=400, detail="Seuls les fichiers .zip sont acceptés")
+        raise HTTPException(status_code=400, detail="Only .zip files are accepted")
 
     nom_fichier = dataset.filename
     nom_dataset = os.path.splitext(nom_fichier)[0]
@@ -295,7 +295,7 @@ async def delete_model(model_name: str):
 @app.get("/download-file/")
 async def download_file(path:str = Form(...)):
     if not os.path.exists(path):
-        raise HTTPException(status_code=404, detail="Fichier non trouvé. Vérifiez le chemin")
+        raise HTTPException(status_code=404, detail="File not found. Check the path")
 
     filename = os.path.basename(path)
 
@@ -328,7 +328,7 @@ async def get_status():
 @app.get("/logs/")
 async def get_logs():
     if not os.path.exists(log_file):
-        return {"logs": ["Fichier de log pas généré"]}
+        raise HTTPException(status_code=404, detail="No log file available")
 
     try:
         # on ne garde que les 20 dernières lignes
@@ -342,13 +342,13 @@ async def get_logs():
             "logs": clean_logs
         }
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Erreur lors de la lecture des logs : {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Error while reading logs : {str(e)}")
 
 
-@app.get("/logs/file")
+@app.get("/logs-file")
 async def get_log_file():
     if not os.path.exists(log_file):
-        raise HTTPException(status_code=404, detail="Aucun log disponible")
+        raise HTTPException(status_code=404, detail="No log file available")
 
     def iterfile():
         # On ouvre en mode binaire pour le stream
