@@ -12,11 +12,11 @@ This project is a computer vision application aiming to automatically detect and
 - At the end of the video, a summary will show every sign detected with the frame number & the coordinates
 
 ## Original models used
-- for the shape detector : yolo26n
+- for the shape detector : yolo26n (https://docs.ultralytics.com/fr/models/yolo26/#key-features)
 - for the sign detector : yolo26m
 
 ## Datasets used
-- For the shape detector : 
-- For the sign detector : 
+- For the shape detector : https://www.kaggle.com/datasets/valentynsichkar/traffic-signs-dataset-in-yolo-format (Valentyn Sichkar)
+- For the sign detector : https://btsd.ethz.ch/shareddata/ (ETH Zurich)
 
 For more information about specific components, consult the MD files in the "docs" folder
