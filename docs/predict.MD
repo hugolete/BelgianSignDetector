@@ -29,6 +29,8 @@ Prerequisites : same as image & video + you need a camera
 
 This feature was only tested with OBS virtual camera as I don't have a real one, so problems may happen
 
+This feature isn't present in the Docker container, and I don't know if it's actually usable without human intervention
+
 ### How to use
 - Plug in a camera
 - Run camera_predict.py

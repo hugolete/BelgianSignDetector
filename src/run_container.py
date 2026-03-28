@@ -4,45 +4,45 @@ import os
 
 
 load_dotenv()
-print("Initialisation client docker")
+print("Initializing Docker client")
 root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 # connexion au client docker
 try:
     client = docker.DockerClient(base_url=os.getenv("DOCKER_URL"))
-    print("Client Docker initialisé")
+    print("Docker client initialized")
 except Exception as e:
-    raise Exception("Erreur dans l'init du client Docker : ",e)
+    raise Exception("Error when initializing Docker Client : ",e)
 
 # lancement du container
 try:
-    print("Lancement du container en cours")
+    print("Starting container")
 
     try:
         container = client.containers.get("belgian-sign-detector-container")
 
         if container.status != "running":
-            print(f"Relance du container belgian-sign-detector-container")
+            print(f"Restarting container belgian-sign-detector-container")
             container.start()
-            print("Container démarré !")
-            print("L'API sera lancée sur localhost:8000 !")
-            print("Mlflow sera lancé sur localhost:5000 !")
+            print("Container started !")
+            print("API will be available on localhost:8000 !")
+            print("Mlflow will be available on localhost:5000 !")
             print("\n")
-            print("--- Logs du conteneur ---")
+            print("--- Container logs ---")
 
             for line in container.logs(stream=True):
                 print(line.decode('utf-8').strip())
         else:
-            print("Le container tourne déjà.")
+            print("Container already running")
     except docker.errors.NotFound:
-        print(f"Le container belgian-sign-detector-container n'existe pas. Création...")
+        print(f"Container belgian-sign-detector-container doesn't exist. Creating it now")
         container = client.containers.run("belgian-sign-detector", detach=True,device_requests=[docker.types.DeviceRequest(count=-1, capabilities=[['gpu']])], ports={'5000/tcp': 5000, '8000/tcp': 8000},name="belgian-sign-detector-container",ipc_mode="host")
-        print("Nouveau container créé et démarré.")
-        print("L'API sera lancée sur localhost:8000 !")
-        print("Mlflow sera lancé sur localhost:5000 !")
+        print("New container created & started")
+        print("API will be available on localhost:8000 !")
+        print("Mlflow will be available on localhost:5000 !")
 
-        print("--- Logs du conteneur ---")
+        print("--- Container logs ---")
         for line in container.logs(stream=True):
             print(line.decode('utf-8').strip())
 except Exception as e:
-    print("Erreur lors du lancement du container : ",e)
+    print("Error while launching the container : ",e)
