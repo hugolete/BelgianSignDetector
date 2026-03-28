@@ -9,7 +9,7 @@ output_folder = "test_shapedetector"
 video_path = "../../datasets/archive/traffic-sign-to-test.mp4"
 video_path2 = "../../datasets/video1_nuit.mp4"
 
-model_path = "../../models/ShapeDetector_Kaggle_Epoch20.pt"
+model_path = "../../models/ShapeDetector.pt"
 model = YOLO(model_path)
 
 count_detections = 0

@@ -4,11 +4,10 @@ The prediction process is detailed in README.md
 
 ## Image prediction
 
-Prerequisites : having the shape detector & the sign detector models
+Prerequisites : having the shape detector & the sign detector models in the /models folder
+Default paths & names : models/ShapeDetector.pt & models/SignDetector.pt
 
 ### Parameters
-- Shape detector's path
-- Sign detector's path
 - Image path
 
 ### How to use
@@ -19,9 +18,17 @@ Prerequisites : having the shape detector & the sign detector models
 Prerequisites : same as image
 
 ### Parameters
-- Shape detector's path
-- Sign detector's path
 - Video path
 
 ### How to use
-- Simply run video_prdict.py and type the required parameters
+- Simply run video_predict.py and type the required parameters
+
+## Camera prediction
+
+Prerequisites : same as image & video + you need a camera
+
+This feature was only tested with OBS virtual camera as I don't have a real one, so problems may happen
+
+### How to use
+- Plug in a camera
+- Run camera_predict.py

@@ -15,7 +15,7 @@ model_list = [
     "Augmentation_Epoch5.pt",
     "Augmentation_Epoch6.pt",
     "Augmentation_Epoch8.pt",
-    "FinalModel.pt"
+    "SignDetector.pt"
 ]
 
 for imgsz in img_sizes:

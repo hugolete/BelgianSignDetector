@@ -19,8 +19,8 @@ import logging
 
 
 app = FastAPI()
-shapeDetector_path = "/app/models/ShapeDetector_Kaggle_Epoch20.pt"
-signDetector_path = "/app/models/FinalModel.pt"
+shapeDetector_path = "/app/models/ShapeDetector.pt"
+signDetector_path = "/app/models/SignDetector.pt"
 dataset_dir = "/app/datasets/"
 models_dir = "/app/models/"
 log_file = "/app/api_log.log"
@@ -38,8 +38,8 @@ else:
 logging.getLogger("ultralytics").setLevel(logging.INFO)
 
 try:
-    shapeDetector_model = YOLO(os.path.join(models_dir, "ShapeDetector_Kaggle_Epoch20.pt"))
-    sign_model = YOLO(os.path.join(models_dir, "FinalModel.pt"))
+    shapeDetector_model = YOLO(os.path.join(models_dir, "ShapeDetector.pt"))
+    sign_model = YOLO(os.path.join(models_dir, "SignDetector.pt"))
     print("Modèles chargés !")
 except Exception as e:
     raise ValueError("Erreur lors du chargement des modèles")

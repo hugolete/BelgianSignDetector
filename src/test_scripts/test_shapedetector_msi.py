@@ -24,7 +24,7 @@ def smart_predict(image_path):
 if __name__ == "__main__":
     image_path = "../../datasets/Dataset test/18.jpg"  # cette image contient au moins 1 panneau pour chaque type de distance (parfait pour test)
 
-    model_path = "../../models/ShapeDetector_Kaggle_Epoch20.pt"
+    model_path = "../../models/ShapeDetector.pt"
     model = YOLO(model_path)
 
     smart_predict(image_path)

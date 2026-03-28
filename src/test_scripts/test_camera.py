@@ -3,7 +3,7 @@ import cv2
 from utils.find_cameras import get_best_camera
 
 if __name__ == '__main__':
-    model = YOLO("../models/ShapeDetector_Kaggle_Epoch20.pt")
+    model = YOLO("../models/ShapeDetector.pt")
 
     source = get_best_camera()
 

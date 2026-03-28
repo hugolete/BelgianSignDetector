@@ -5,7 +5,7 @@ detector = AutoDetectionModel()
 
 detection_model = detector.from_pretrained(
     model_type='ultralytics',
-    model_path='../../models/FinalModel.pt',
+    model_path='../../models/SignDetector.pt',
     confidence_threshold=0.3
 )
 

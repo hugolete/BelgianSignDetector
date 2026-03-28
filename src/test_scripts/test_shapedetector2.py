@@ -4,7 +4,7 @@ import cv2
 
 
 if __name__ == "__main__":
-    shapeDetector_path = "../../models/ShapeDetector_Kaggle_Epoch20.pt"
+    shapeDetector_path = "../../models/ShapeDetector.pt"
     image_folder_path = "../../datasets/Dataset test/"
 
     for file in os.listdir(image_folder_path):

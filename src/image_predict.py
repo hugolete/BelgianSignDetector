@@ -144,8 +144,8 @@ def print_detections(detected_signs,min_conf:float):
 
 
 if __name__ == '__main__':
-    shapeDetector_path = "../models/ShapeDetector_Kaggle_Epoch20.pt"
-    signDetector_path = "../models/FinalModel.pt"
+    shapeDetector_path = "../models/ShapeDetector.pt"
+    signDetector_path = "../models/SignDetector.pt"
 
     image_path = str(input("Image path"))
     img = cv2.imread(image_path)

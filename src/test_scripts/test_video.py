@@ -56,7 +56,7 @@ def video_shape_detection_basic(shapeDetector_path:str,video_path:str):
 
 
 if __name__ == '__main__':
-    shapeDetector_path = "../models/ShapeDetector_Kaggle_Epoch20.pt"
+    shapeDetector_path = "../models/ShapeDetector.pt"
     video_path = "../../datasets/archive/traffic-sign-to-test.mp4"
     video_path2 = "../../datasets/video1_nuit.mp4"
     video_path3 = "../../datasets/video2.mp4"

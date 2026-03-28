@@ -4,8 +4,8 @@ from src.image_predict import shape_detection, sign_detection, get_crops, get_de
 
 
 if __name__ == '__main__':
-    shapeDetector_path = "../../models/ShapeDetector_Kaggle_Epoch20.pt"
-    signDetector_path = "../../models/FinalModel.pt"
+    shapeDetector_path = "../../models/ShapeDetector.pt"
+    signDetector_path = "../../models/SignDetector.pt"
 
     image_folder_path = "../../datasets/Dataset test/"
 

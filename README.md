@@ -11,4 +11,12 @@ This project is a computer vision application aiming to automatically detect and
 - Detected signs are shown in the console in real-time, with an anti-duplicate system, and added to a dictionary named "total_detected_signs"
 - At the end of the video, a summary will show every sign detected with the frame number & the coordinates
 
+## Original models used
+- for the shape detector : yolo26n
+- for the sign detector : yolo26m
+
+## Datasets used
+- For the shape detector : 
+- For the sign detector : 
+
 For more information about specific components, consult the MD files in the "docs" folder
